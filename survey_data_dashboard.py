@@ -62,6 +62,7 @@ def plot_data(data, game_day):
     questions = sorted(filtered_data['question'].unique())  # Sort questions
 
     for question in questions:
+        st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
 
         # Generate bar chart using Matplotlib
@@ -76,6 +77,10 @@ def plot_data(data, game_day):
         
         # Display count table
         st.table(question_data['choice_text'].value_counts().sort_index())
+        
+        # Display average response value
+        avg_response = question_data['choice_text'].mean()
+        st.write(f"Average response value: {avg_response:.2f}")
 
 if __name__ == "__main__":
     main()
