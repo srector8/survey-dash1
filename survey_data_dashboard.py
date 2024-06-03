@@ -7,11 +7,24 @@ Original file is located at
     https://colab.research.google.com/drive/1Gr_RwxdK7WksZZraCxQmHQvTKIjZh3Ls
 """
 
-import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import io
 
+# Define required dependencies
+dependencies = {
+    "pandas": "1.3.0",
+    "matplotlib": "3.4.2"
+}
+
+# Install dependencies
+for package, version in dependencies.items():
+    st.write(f"Installing {package}=={version}")
+    st.run(f"pip install {package}=={version}")
+
+# Now you can import the installed packages
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import io
 def main():
     st.title("Interactive Dashboard")
 
