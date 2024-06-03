@@ -52,7 +52,7 @@ def main():
         # Create a dropdown for selecting a game day
         game_day = st.selectbox("Select Game Day", sorted(data['game_day'].unique()))
 
-        # Plot graphs and cumulative tables based on selected game day
+        # Plot graphs and count tables based on selected game day
         plot_data(data, game_day)
 
 def plot_data(data, game_day):
@@ -75,8 +75,8 @@ def plot_data(data, game_day):
         # Display bar chart in Streamlit
         st.pyplot(fig)
         
-        # Display cumulative table
-        st.table(question_data['choice_text'].value_counts().cumsum())
+        # Display count table
+        st.table(question_data['choice_text'].value_counts().sort_index())
 
 if __name__ == "__main__":
     main()
