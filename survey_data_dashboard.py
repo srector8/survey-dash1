@@ -62,25 +62,26 @@ def plot_data(data, game_day):
         st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
 
-        # Generate bar chart using Matplotlib
-        fig, ax = plt.subplots()
-        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-        plt.title(f'Question: {question}')
-        plt.xlabel('Choices')
-        plt.ylabel('Frequency')
+        if not question_data.empty:
+            # Generate bar chart using Matplotlib
+            fig, ax = plt.subplots()
+            question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
+            plt.title(f'Question: {question}')
+            plt.xlabel('Choices')
+            plt.ylabel('Frequency')
 
-        # Display bar chart in Streamlit
-        st.pyplot(fig)
-        
-        # Display count table
-        st.table(question_data['choice_text'].value_counts().sort_index())
+            # Display bar chart in Streamlit
+            st.pyplot(fig)
+            
+            # Display count table
+            st.table(question_data['choice_text'].value_counts().sort_index())
 
-        # Display average response value if the data is numeric
-        if pd.api.types.is_numeric_dtype(question_data['choice_text']):
-            avg_response = question_data['choice_text'].mean()
-            st.write(f"Average response value: {avg_response:.2f}")
-        else:
-            st.write("Average response value: N/A (non-numeric responses)")
+            # Display average response value if the data is numeric
+            if pd.api.types.is_numeric_dtype(question_data['choice_text']):
+                avg_response = question_data['choice_text'].mean()
+                st.write(f"Average response value: {avg_response:.2f}")
+            else:
+                st.write("Average response value: N/A (non-numeric responses)")
 
 if __name__ == "__main__":
     main()
