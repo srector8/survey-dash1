@@ -50,7 +50,7 @@ def main():
             st.error("Error: Some values in 'choice_text' column are not numeric.")
 
         # Create a dropdown for selecting a game day
-        game_day = st.selectbox("Select Game Day", data['game_day'].unique())
+        game_day = st.selectbox("Select Game Day", sorted(data['game_day'].unique()))
 
         # Plot graphs and cumulative tables based on selected game day
         plot_data(data, game_day)
@@ -59,7 +59,7 @@ def plot_data(data, game_day):
     st.write(f"Game Day: {game_day}")
 
     filtered_data = data[data['game_day'] == game_day]
-    questions = filtered_data['question'].unique()
+    questions = sorted(filtered_data['question'].unique())  # Sort questions
 
     for question in questions:
         st.subheader(f'Question: {question}')
