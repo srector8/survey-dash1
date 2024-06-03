@@ -62,12 +62,12 @@ def plot_data(data, game_day):
     questions = sorted(filtered_data['question'].unique())  # Sort questions
 
     for question in questions:
-        st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
 
         # Generate bar chart using Matplotlib
         fig, ax = plt.subplots()
         question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
+        plt.title(f'Question: {question}')
         plt.xlabel('Choices')
         plt.ylabel('Frequency')
 
