@@ -7,25 +7,34 @@ Original file is located at
     https://colab.research.google.com/drive/1Gr_RwxdK7WksZZraCxQmHQvTKIjZh3Ls
 """
 
+import numpy as np
+import streamlit as st
 import pandas as pd
-import ipywidgets as widgets
-from ipywidgets import interact_manual, Output
-import matplotlib.pyplot as plt
+import streamlit as st
 import io
+"""
+# Welcome to Streamlit!
 
-# Create file upload widget
-upload = widgets.FileUpload(accept='.csv', multiple=False)
-output = Output()
+Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
+If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
+forums](https://discuss.streamlit.io).
 
-def process_file(change):
-    # Clear previous output
-    output.clear_output()
+In the meantime, below is an example of what you can do with just a few lines of code:
+"""
 
-    with output:
+
+
+
+def main():
+
+    st.title("Survey Data Dashboard")
+
+    # File upload widget
+    uploaded_file = st.file_uploader("Upload CSV", type="csv")
+
+    if uploaded_file is not None:
         # Read the uploaded CSV file
-        uploaded_file = list(upload.value.values())[0]
-        content = uploaded_file['content']
-        data = pd.read_csv(io.StringIO(content.decode('utf-8')))
+        data = pd.read_csv(uploaded_file)
 
         # Convert the timestamp to datetime and extract the date
         data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%y %H:%M').dt.date
@@ -49,36 +58,24 @@ def process_file(change):
         data = data.dropna(subset=['game_day'])
 
         # Create a dropdown for selecting a game day
-        game_day_dropdown = widgets.Dropdown(
-            options=data['game_day'].unique(),
-            description='Game Day:',
-        )
+        game_day = st.selectbox("Select Game Day", data['game_day'].unique())
 
-        display(game_day_dropdown)
+        # Plot graphs based on selected game day
+        plot_graphs(data, game_day)
 
-        # Function to plot graphs based on selected game day
-        def plot_graphs(game_day):
-            # Clear previous plots
-            output.clear_output(wait=True)
-            with output:
-                filtered_data = data[data['game_day'] == game_day]
-                questions = filtered_data['question'].unique()
+def plot_graphs(data, game_day):
+    st.write(f"Game Day: {game_day}")
 
-                for question in questions:
-                    plt.figure()
-                    question_data = filtered_data[filtered_data['question'] == question]
-                    question_data['choice_text'].value_counts().plot(kind='bar')
-                    plt.title(f'Question: {question}')
-                    plt.xlabel('Choices')
-                    plt.ylabel('Frequency')
-                    plt.show()
+    filtered_data = data[data['game_day'] == game_day]
+    questions = filtered_data['question'].unique()
 
-        interact_manual(plot_graphs, game_day=game_day_dropdown)
+    for question in questions:
+        st.subheader(f'Question: {question}')
+        question_data = filtered_data[filtered_data['question'] == question]
+        st.bar_chart(question_data['choice_text'].value_counts())
 
-# Observe the file upload
-upload.observe(process_file, names='value')
-
-display(upload, output)
+if __name__ == "__main__":
+    main()
 
 import pandas as pd
 import ipywidgets as widgets
