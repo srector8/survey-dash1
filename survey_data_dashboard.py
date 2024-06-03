@@ -62,7 +62,6 @@ def plot_data(data, game_day):
     questions = sorted(filtered_data['question'].unique())  # Sort questions
 
     for question in questions:
-        st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
 
         # Generate bar chart using Matplotlib
