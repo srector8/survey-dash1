@@ -12,11 +12,6 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import io
 
-import pandas as pd
-import streamlit as st
-import matplotlib.pyplot as plt
-import io
-
 def main():
     st.title("Survey Data Dashboard")
 
@@ -82,11 +77,6 @@ def plot_data(data, game_day):
         
         # Display count table
         st.table(question_data['choice_text'].value_counts().sort_index())
-
-        # Calculate and display average response if the choices are numeric
-        if pd.api.types.is_numeric_dtype(question_data['choice_text']):
-            average_response = question_data['choice_text'].mean()
-            st.write(f'Average Response: {average_response:.2f}')
 
 if __name__ == "__main__":
     main()
