@@ -9,6 +9,7 @@ Original file is located at
 
 import pandas as pd
 import streamlit as st
+import matplotlib.pyplot as plt
 import io
 
 def main():
@@ -58,8 +59,15 @@ def plot_data(data, game_day):
         st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
 
-        # Plot bar chart
-        st.write(question_data['choice_text'].value_counts().plot(kind='bar'))
+        # Generate bar chart using Matplotlib
+        fig, ax = plt.subplots()
+        question_data['choice_text'].value_counts().plot(kind='bar', ax=ax)
+        plt.title(f'Question: {question}')
+        plt.xlabel('Choices')
+        plt.ylabel('Frequency')
+
+        # Display bar chart in Streamlit
+        st.pyplot(fig)
         
         # Display cumulative table
         st.table(question_data['choice_text'].value_counts().cumsum())
