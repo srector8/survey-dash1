@@ -44,7 +44,10 @@ def main():
         data = data.dropna(subset=['game_day'])
 
         # Convert rating column to integers
-        data['choice_text'] = data['choice_text'].astype(int)
+        try:
+            data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(int)
+        except ValueError:
+            st.error("Error: Some values in 'choice_text' column are not numeric.")
 
         # Create a dropdown for selecting a game day
         game_day = st.selectbox("Select Game Day", data['game_day'].unique())
