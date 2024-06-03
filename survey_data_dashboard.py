@@ -7,27 +7,12 @@ Original file is located at
     https://colab.research.google.com/drive/1Gr_RwxdK7WksZZraCxQmHQvTKIjZh3Ls
 """
 
-import numpy as np
-import streamlit as st
 import pandas as pd
 import streamlit as st
 import io
-"""
-# Welcome to Streamlit!
-
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
-
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
-
-
-
 
 def main():
-
-    st.title("Survey Data Dashboard")
+    st.title("Interactive Dashboard")
 
     # File upload widget
     uploaded_file = st.file_uploader("Upload CSV", type="csv")
@@ -60,10 +45,10 @@ def main():
         # Create a dropdown for selecting a game day
         game_day = st.selectbox("Select Game Day", data['game_day'].unique())
 
-        # Plot graphs based on selected game day
-        plot_graphs(data, game_day)
+        # Plot graphs and cumulative tables based on selected game day
+        plot_data(data, game_day)
 
-def plot_graphs(data, game_day):
+def plot_data(data, game_day):
     st.write(f"Game Day: {game_day}")
 
     filtered_data = data[data['game_day'] == game_day]
@@ -72,7 +57,12 @@ def plot_graphs(data, game_day):
     for question in questions:
         st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
-        st.bar_chart(question_data['choice_text'].value_counts())
+
+        # Plot bar chart
+        st.write(question_data['choice_text'].value_counts().plot(kind='bar'))
+        
+        # Display cumulative table
+        st.table(question_data['choice_text'].value_counts().cumsum())
 
 if __name__ == "__main__":
     main()
