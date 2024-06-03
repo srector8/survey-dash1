@@ -43,8 +43,11 @@ def main():
         # Filter out rows with None game_day
         data = data.dropna(subset=['game_day'])
 
-        # Convert rating column to integers where possible
-        data['choice_text'] = pd.to_numeric(data['choice_text'], errors='coerce')
+        # Convert rating column to integers
+        try:
+            data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(int)
+        except ValueError:
+            st.error("Error: Some values in 'choice_text' column are not numeric.")
 
         # Create a dropdown for selecting a game day
         game_day = st.selectbox("Select Game Day", sorted(data['game_day'].unique()))
@@ -62,26 +65,18 @@ def plot_data(data, game_day):
         st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
 
-        if not question_data.empty:
-            # Generate bar chart using Matplotlib
-            fig, ax = plt.subplots()
-            question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-            plt.title(f'Question: {question}')
-            plt.xlabel('Choices')
-            plt.ylabel('Frequency')
+        # Generate bar chart using Matplotlib
+        fig, ax = plt.subplots()
+        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
+        plt.title(f'Question: {question}')
+        plt.xlabel('Choices')
+        plt.ylabel('Frequency')
 
-            # Display bar chart in Streamlit
-            st.pyplot(fig)
-            
-            # Display count table
-            st.table(question_data['choice_text'].value_counts().sort_index())
-
-            # Display average response value if the data is numeric
-            if pd.api.types.is_numeric_dtype(question_data['choice_text']):
-                avg_response = question_data['choice_text'].mean()
-                st.write(f"Average response value: {avg_response:.2f}")
-            else:
-                st.write("Average response value: N/A (non-numeric responses)")
+        # Display bar chart in Streamlit
+        st.pyplot(fig)
+        
+        # Display count table
+        st.table(question_data['choice_text'].value_counts().sort_index())
 
 if __name__ == "__main__":
     main()
