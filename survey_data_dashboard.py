@@ -68,7 +68,6 @@ def plot_data(data, game_day):
         # Generate bar chart using Matplotlib
         fig, ax = plt.subplots()
         question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-        plt.title(f'Question: {question}')
         plt.xlabel('Choices')
         plt.ylabel('Frequency')
 
