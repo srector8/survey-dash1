@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import io
 
 def main():
-    st.title("Interactive Dashboard")
+    st.title("Survey Data Dashboard")
 
     # File upload widget
     uploaded_file = st.file_uploader("Upload CSV", type="csv")
