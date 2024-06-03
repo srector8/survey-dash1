@@ -43,6 +43,9 @@ def main():
         # Filter out rows with None game_day
         data = data.dropna(subset=['game_day'])
 
+        # Convert rating column to integers
+        data['choice_text'] = data['choice_text'].astype(int)
+
         # Create a dropdown for selecting a game day
         game_day = st.selectbox("Select Game Day", data['game_day'].unique())
 
@@ -61,7 +64,7 @@ def plot_data(data, game_day):
 
         # Generate bar chart using Matplotlib
         fig, ax = plt.subplots()
-        question_data['choice_text'].value_counts().plot(kind='bar', ax=ax)
+        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
         plt.title(f'Question: {question}')
         plt.xlabel('Choices')
         plt.ylabel('Frequency')
