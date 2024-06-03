@@ -43,12 +43,11 @@ def main():
         # Filter out rows with None game_day
         data = data.dropna(subset=['game_day'])
 
-        # Convert rating column to numeric if possible
+        # Convert rating column to integers
         try:
             data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(int)
         except ValueError:
             st.error("Error: Some values in 'choice_text' column are not numeric.")
-            return
 
         # Create a dropdown for selecting a game day
         game_day = st.selectbox("Select Game Day", sorted(data['game_day'].unique()))
@@ -78,10 +77,6 @@ def plot_data(data, game_day):
         
         # Display count table
         st.table(question_data['choice_text'].value_counts().sort_index())
-
-        # Calculate and display average response
-        average_response = question_data['choice_text'].mean()
-        st.write(f'Average Response: {average_response:.2f}')
 
 if __name__ == "__main__":
     main()
