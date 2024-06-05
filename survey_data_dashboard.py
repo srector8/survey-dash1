@@ -104,10 +104,11 @@ def plot_comparison_data(data, question, game_days):
 
     for ax, game_day in zip(axs, game_days):
         game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-        game_day_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
+        proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index()
+        proportions.plot(kind='bar', ax=ax)
         ax.set_title(f'Game Day: {game_day}')
         ax.set_xlabel('Choices')
-        ax.set_ylabel('Frequency')
+        ax.set_ylabel('Proportion')
 
     # Adjust layout
     plt.tight_layout()
@@ -115,11 +116,12 @@ def plot_comparison_data(data, question, game_days):
     # Display bar charts side by side in Streamlit
     st.pyplot(fig)
     
-    # Display count tables
+    # Display proportion tables
     for game_day in game_days:
         st.subheader(f'Game Day: {game_day}')
         game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-        st.table(game_day_data['choice_text'].value_counts().sort_index())
+        proportions_table = game_day_data['choice_text'].value_counts(normalize=True).sort_index()
+        st.table(proportions_table)
 
 if __name__ == "__main__":
     main()
