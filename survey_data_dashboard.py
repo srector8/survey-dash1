@@ -16,9 +16,9 @@ def main():
     st.title("Survey Data Dashboard")
 
     # File upload widget
-    uploaded_file = st.file_uploader("Upload CSV", type="csv")
+    file_path = "Feedback-Responses-2024-05-17_updated.csv"
 
-    if uploaded_file is not None:
+    if file_path is not None:
         # Read the uploaded CSV file
         data = pd.read_csv(uploaded_file)
 
