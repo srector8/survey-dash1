@@ -44,12 +44,12 @@ def main():
 
         # Convert rating column to integers
         try:
-            data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(int)
+            data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(float)
         except ValueError:
-            st.error("Error: Some values in 'choice_text' column are not numeric.")
+            pass
 
         # Create tabs
-        tab1, tab2 = st.tabs(["Multi-Question by Date", "Single Question Comparison by Date"])
+        tab1, tab2, tab3 = st.tabs(["Multi-Question by Date", "Single Question Comparison by Date", "Average Ratings by Date"])
 
         with tab1:
             st.header("Multi-Question by Date")
@@ -79,55 +79,42 @@ def main():
             else:
                 st.warning("Please select at least one game day for comparison.")
 
-def plot_data(data, questions):
-    for question in questions:
+        with tab3:
+            st.header("Average Ratings by Date")
+            # Get rating questions
+            rating_questions = get_rating_questions(data)
+
+            # Create a multiselect for selecting rating questions
+            selected_rating_questions = st.multiselect("Select Rating Questions", rating_questions)
+
+            if selected_rating_questions:
+                plot_average_ratings(data, selected_rating_questions)
+            else:
+                st.warning("Please select at least one rating question.")
+
+def get_rating_questions(data):
+    # Find questions that require a numeric rating
+    rating_questions = data[data['question'].str.contains('rating', case=False) & (data['choice_text'].apply(lambda x: isinstance(x, (int, float))))]
+    return rating_questions['question'].unique()
+
+def plot_average_ratings(data, selected_rating_questions):
+    for question in selected_rating_questions:
         question_data = data[data['question'] == question]
 
-        # Generate bar chart using Matplotlib
-        fig, ax = plt.subplots()
-        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-        plt.title(f'Question: {question}')
-        plt.xlabel('Choices')
-        plt.ylabel('Frequency')
+        # Calculate average rating for each date
+        average_ratings = question_data.groupby('date')['choice_text'].mean()
 
-        # Display bar chart in Streamlit
-        st.pyplot(fig)
-        
-        # Display count table
-        st.table(question_data['choice_text'].value_counts().sort_index())
+        # Plot time-series bar plot
+        plt.figure(figsize=(10, 5))
+        average_ratings.plot(kind='bar')
+        plt.title(f'Average Rating Over Time for "{question}"')
+        plt.xlabel('Date')
+        plt.ylabel('Average Rating')
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
 
-def plot_comparison_data(data, question, game_days):
-    fig, axs = plt.subplots(1, len(game_days), figsize=(15, 5), sharey=True)
-
-    if len(game_days) == 1:
-        axs = [axs]  # Make sure axs is iterable if there's only one game day selected
-
-    for ax, game_day in zip(axs, game_days):
-        game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-        proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
-        proportions.plot(kind='bar', ax=ax)
-        ax.set_title(f'Game Day: {game_day}')
-        ax.set_xlabel('Choices')
-        ax.set_ylabel('Percentage')
-
-        # Format y-axis as percentage with one decimal
-        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.1f}%'))
-
-    # Adjust layout
-    plt.tight_layout()
-
-    # Display bar charts side by side in Streamlit
-    st.pyplot(fig)
-    
-    # Display percentage tables side by side
-    cols = st.columns(len(game_days))
-    for col, game_day in zip(cols, game_days):
-        with col:
-           
-            game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-            percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
-            percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
-            st.table(percentages_table)
+        # Display bar plot in Streamlit
+        st.pyplot(plt)
 
 if __name__ == "__main__":
     main()
