@@ -49,7 +49,7 @@ def main():
             st.error("Error: Some values in 'choice_text' column are not numeric.")
 
         # Create tabs
-        tab1, tab2 = st.tabs(["Multi-Question by Date", "Single Question Comparison by Date"])
+        tab1, tab2 = st.tabs(["Cumulative Data by Question (over specified dates)", "Single Question Comparison by Date"])
 
         with tab1:
             st.header("Multi-Question by Date")
