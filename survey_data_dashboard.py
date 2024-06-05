@@ -29,6 +29,24 @@ def preprocess_data(data):
 
     return data, rating_questions
 
+def categorize_date(date):
+    game_days = [
+        pd.to_datetime('2024-05-14').date(), pd.to_datetime('2024-05-17').date(),
+        pd.to_datetime('2024-05-23').date(), pd.to_datetime('2024-05-28').date(),
+        pd.to_datetime('2024-05-31').date(), pd.to_datetime('2024-06-04').date(),
+        pd.to_datetime('2024-06-08').date(), pd.to_datetime('2024-06-10').date(),
+        pd.to_datetime('2024-06-18').date(), pd.to_datetime('2024-06-28').date(),
+        pd.to_datetime('2024-07-07').date(), pd.to_datetime('2024-07-10').date(),
+        pd.to_datetime('2024-07-14').date(), pd.to_datetime('2024-08-20').date(),
+        pd.to_datetime('2024-08-23').date(), pd.to_datetime('2024-09-01').date(),
+        pd.to_datetime('2024-09-03').date(), pd.to_datetime('2024-09-06').date(),
+        pd.to_datetime('2024-09-17').date(), pd.to_datetime('2024-09-19').date()
+    ]
+    for game_day in game_days:
+        if date >= game_day:
+            return game_day.strftime('%Y-%m-%d')
+    return None
+
 def main():
     st.title("Survey Data Dashboard")
 
@@ -41,23 +59,10 @@ def main():
 
         data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%y %H:%M').dt.date
 
-
         # Preprocess the data
         data, rating_questions = preprocess_data(data)
 
-        # Define game days
-        game_day_1 = pd.to_datetime('2024-05-14').date()
-        game_day_2 = pd.to_datetime('2024-05-17').date()
-
         # Categorize the responses based on the date
-        def categorize_date(date):
-            if date > game_day_1 and date < game_day_2:
-                return '2024-05-14'
-            elif date >= game_day_2:
-                return '2024-05-17'
-            else:
-                return None
-
         data['game_day'] = data['date'].apply(categorize_date)
 
         # Filter out rows with None game_day
@@ -175,4 +180,4 @@ def plot_average_ratings(data, selected_rating_questions):
         st.pyplot(plt)
 
 if __name__ == "__main__":
-    main() 
+    main()
