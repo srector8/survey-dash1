@@ -24,8 +24,6 @@ def preprocess_data(data):
 
     return data, rating_questions
 
-    return data, rating_questions
-
 def main():
     st.title("Survey Data Dashboard")
 
