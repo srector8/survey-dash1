@@ -49,31 +49,31 @@ def main():
 
         # Categorize the responses based on the date
        def categorize_date(date):
-    game_days = [
-        (pd.to_datetime('2024-05-14').date(), pd.to_datetime('2024-05-17').date()),
-        (pd.to_datetime('2024-05-17').date(), pd.to_datetime('2024-05-23').date()),
-        (pd.to_datetime('2024-05-23').date(), pd.to_datetime('2024-05-28').date()),
-        (pd.to_datetime('2024-05-28').date(), pd.to_datetime('2024-05-31').date()),
-        (pd.to_datetime('2024-05-31').date(), pd.to_datetime('2024-06-04').date()),
-        (pd.to_datetime('2024-06-04').date(), pd.to_datetime('2024-06-08').date()),
-        (pd.to_datetime('2024-06-08').date(), pd.to_datetime('2024-06-10').date()),
-        (pd.to_datetime('2024-06-10').date(), pd.to_datetime('2024-06-18').date()),
-        (pd.to_datetime('2024-06-18').date(), pd.to_datetime('2024-06-28').date()),
-        (pd.to_datetime('2024-06-28').date(), pd.to_datetime('2024-07-07').date()),
-        (pd.to_datetime('2024-07-07').date(), pd.to_datetime('2024-07-10').date()),
-        (pd.to_datetime('2024-07-10').date(), pd.to_datetime('2024-07-14').date()),
-        (pd.to_datetime('2024-07-14').date(), pd.to_datetime('2024-08-20').date()),
-        (pd.to_datetime('2024-08-20').date(), pd.to_datetime('2024-08-23').date()),
-        (pd.to_datetime('2024-08-23').date(), pd.to_datetime('2024-09-01').date()),
-        (pd.to_datetime('2024-09-01').date(), pd.to_datetime('2024-09-03').date()),
-        (pd.to_datetime('2024-09-03').date(), pd.to_datetime('2024-09-06').date()),
-        (pd.to_datetime('2024-09-06').date(), pd.to_datetime('2024-09-17').date()),
-        (pd.to_datetime('2024-09-17').date(), pd.to_datetime('2024-09-19').date())
-    ]
-    for start_date, end_date in game_days:
-        if start_date <= date <= end_date:
-            return start_date.strftime('%Y-%m-%d')
-    return None
+            game_days = [
+                (pd.to_datetime('2024-05-14').date(), pd.to_datetime('2024-05-17').date()),
+                (pd.to_datetime('2024-05-17').date(), pd.to_datetime('2024-05-23').date()),
+                (pd.to_datetime('2024-05-23').date(), pd.to_datetime('2024-05-28').date()),
+                (pd.to_datetime('2024-05-28').date(), pd.to_datetime('2024-05-31').date()),
+                (pd.to_datetime('2024-05-31').date(), pd.to_datetime('2024-06-04').date()),
+                (pd.to_datetime('2024-06-04').date(), pd.to_datetime('2024-06-08').date()),
+                (pd.to_datetime('2024-06-08').date(), pd.to_datetime('2024-06-10').date()),
+                (pd.to_datetime('2024-06-10').date(), pd.to_datetime('2024-06-18').date()),
+                (pd.to_datetime('2024-06-18').date(), pd.to_datetime('2024-06-28').date()),
+                (pd.to_datetime('2024-06-28').date(), pd.to_datetime('2024-07-07').date()),
+                (pd.to_datetime('2024-07-07').date(), pd.to_datetime('2024-07-10').date()),
+                (pd.to_datetime('2024-07-10').date(), pd.to_datetime('2024-07-14').date()),
+                (pd.to_datetime('2024-07-14').date(), pd.to_datetime('2024-08-20').date()),
+                (pd.to_datetime('2024-08-20').date(), pd.to_datetime('2024-08-23').date()),
+                (pd.to_datetime('2024-08-23').date(), pd.to_datetime('2024-09-01').date()),
+                (pd.to_datetime('2024-09-01').date(), pd.to_datetime('2024-09-03').date()),
+                (pd.to_datetime('2024-09-03').date(), pd.to_datetime('2024-09-06').date()),
+                (pd.to_datetime('2024-09-06').date(), pd.to_datetime('2024-09-17').date()),
+                (pd.to_datetime('2024-09-17').date(), pd.to_datetime('2024-09-19').date())
+            ]
+            for start_date, end_date in game_days:
+                if start_date <= date <= end_date:
+                    return start_date.strftime('%Y-%m-%d')
+            return None
 
 
         data['game_day'] = data['date'].apply(categorize_date)
