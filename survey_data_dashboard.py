@@ -85,7 +85,7 @@ def main():
         tab1, tab2, tab3 = st.tabs(["Multi-Question by Date", "Single Question Comparison by Date", "Average Ratings by Date"])
 
         with tab1:
-            st.header("Multi-Question by Date")
+            st.header("Cumulative Responses by Question")
             # Create a multiselect for selecting game days
             game_days = st.multiselect("Select Game Days", sorted(data['game_day'].unique()))
 
