@@ -127,7 +127,8 @@ def plot_comparison_data(data, question, game_days):
             game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
             percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
             percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
-            st.table(percentages_table)
+            percentages_table.index.name = 'Choice'
+            st.table(percentages_table.rename_axis('Choice').reset_index().rename(columns={'choice_text': 'Percentage'}))
 
 if __name__ == "__main__":
     main()
