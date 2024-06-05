@@ -18,18 +18,9 @@ def preprocess_data(data):
     except ValueError:
         pass
 
-    # Initialize an empty list to store rating questions
-    rating_questions = []
-
-    # Iterate through each row
-    for index, row in data.iterrows():
-        # Check if the value of 'choice_text' is numeric
-        if isinstance(row['choice_text'], (int, float)):
-            # If it is, add the question to the rating_questions list
-            rating_questions.append(row['question'])
-
-    # Remove duplicates from the list of rating questions
-    rating_questions = list(set(rating_questions))
+    # Find questions that have numeric values in the 'choice_text' column
+    numeric_questions = data.groupby('question')['choice_text'].apply(lambda x: x.apply(lambda y: isinstance(y, (int, float)))).any(level=0)
+    rating_questions = numeric_questions[numeric_questions].index.tolist()
 
     return data, rating_questions
 
