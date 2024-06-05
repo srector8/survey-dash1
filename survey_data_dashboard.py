@@ -143,7 +143,7 @@ def plot_comparison_data(data, question, game_days):
         axs = [axs]  # Make sure axs is iterable if there's only one game day selected
 
     for ax, game_day in zip(axs, game_days):
-        game_day_data = data[(data['game_day'] ==
+    
         game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
         proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
         proportions.plot(kind='bar', ax=ax)
