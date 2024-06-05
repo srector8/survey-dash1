@@ -18,11 +18,21 @@ def preprocess_data(data):
     except ValueError:
         pass
 
-    # Find questions that have numeric values in the 'choice_text' column
-    rating_questions = data[data['choice_text'].apply(lambda x: isinstance(x, (int, float)))]
-    rating_questions = rating_questions['question'].unique()
+    # Initialize an empty list to store rating questions
+    rating_questions = []
+
+    # Iterate through each row
+    for index, row in data.iterrows():
+        # Check if the value of 'choice_text' is numeric
+        if isinstance(row['choice_text'], (int, float)):
+            # If it is, add the question to the rating_questions list
+            rating_questions.append(row['question'])
+
+    # Remove duplicates from the list of rating questions
+    rating_questions = list(set(rating_questions))
 
     return data, rating_questions
+
 
 def main():
     st.title("Survey Data Dashboard")
