@@ -29,24 +29,6 @@ def preprocess_data(data):
 
     return data, rating_questions
 
-def categorize_date(date):
-    game_days = [
-        pd.to_datetime('2024-05-14').date(), pd.to_datetime('2024-05-17').date(),
-        pd.to_datetime('2024-05-23').date(), pd.to_datetime('2024-05-28').date(),
-        pd.to_datetime('2024-05-31').date(), pd.to_datetime('2024-06-04').date(),
-        pd.to_datetime('2024-06-08').date(), pd.to_datetime('2024-06-10').date(),
-        pd.to_datetime('2024-06-18').date(), pd.to_datetime('2024-06-28').date(),
-        pd.to_datetime('2024-07-07').date(), pd.to_datetime('2024-07-10').date(),
-        pd.to_datetime('2024-07-14').date(), pd.to_datetime('2024-08-20').date(),
-        pd.to_datetime('2024-08-23').date(), pd.to_datetime('2024-09-01').date(),
-        pd.to_datetime('2024-09-03').date(), pd.to_datetime('2024-09-06').date(),
-        pd.to_datetime('2024-09-17').date(), pd.to_datetime('2024-09-19').date()
-    ]
-    for game_day in game_days:
-        if date >= game_day:
-            return game_day.strftime('%Y-%m-%d')
-    return None
-
 def main():
     st.title("Survey Data Dashboard")
 
@@ -62,6 +44,37 @@ def main():
         # Preprocess the data
         data, rating_questions = preprocess_data(data)
 
+        # Define game days
+        game_days = [
+            (pd.to_datetime('2024-05-14').date(), pd.to_datetime('2024-05-17').date()),
+            (pd.to_datetime('2024-05-17').date(), pd.to_datetime('2024-05-23').date()),
+            (pd.to_datetime('2024-05-23').date(), pd.to_datetime('2024-05-28').date()),
+            (pd.to_datetime('2024-05-28').date(), pd.to_datetime('2024-05-31').date()),
+            (pd.to_datetime('2024-05-31').date(), pd.to_datetime('2024-06-04').date()),
+            (pd.to_datetime('2024-06-04').date(), pd.to_datetime('2024-06-08').date()),
+            (pd.to_datetime('2024-06-08').date(), pd.to_datetime('2024-06-10').date()),
+            (pd.to_datetime('2024-06-10').date(), pd.to_datetime('2024-06-18').date()),
+            (pd.to_datetime('2024-06-18').date(), pd.to_datetime('2024-06-28').date()),
+            (pd.to_datetime('2024-06-28').date(), pd.to_datetime('2024-07-07').date()),
+            (pd.to_datetime('2024-07-07').date(), pd.to_datetime('2024-07-10').date()),
+            (pd.to_datetime('2024-07-10').date(), pd.to_datetime('2024-07-14').date()),
+            (pd.to_datetime('2024-07-14').date(), pd.to_datetime('2024-08-20').date()),
+            (pd.to_datetime('2024-08-20').date(), pd.to_datetime('2024-08-23').date()),
+            (pd.to_datetime('2024-08-23').date(), pd.to_datetime('2024-09-01').date()),
+            (pd.to_datetime('2024-09-01').date(), pd.to_datetime('2024-09-03').date()),
+            (pd.to_datetime('2024-09-03').date(), pd.to_datetime('2024-09-06').date()),
+            (pd.to_datetime('2024-09-06').date(), pd.to_datetime('2024-09-17').date()),
+            (pd.to_datetime('2024-09-17').date(), pd.to_datetime('2024-09-19').date())
+        ]
+
+        # Categorize the responses based on the date
+        def categorize_date(date):
+            for start_date, end_date in game_days:
+                if start_date <= date <= end_date:
+                    return start_date.strftime('%Y-%m-%d')
+            return None
+
+        
         # Categorize the responses based on the date
         data['game_day'] = data['date'].apply(categorize_date)
 
