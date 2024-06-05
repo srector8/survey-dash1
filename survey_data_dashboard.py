@@ -18,9 +18,11 @@ def preprocess_data(data):
     except ValueError:
         pass
 
-    # Find questions that require a numeric rating
-    rating_questions = data['choice_text'].apply(lambda x: isinstance(x, (int, float)))
+    # Find questions that have numeric values in the 'choice_text' column
+    rating_questions = data[data['choice_text'].apply(lambda x: isinstance(x, (int, float)))]
     rating_questions = rating_questions['question'].unique()
+
+    return data, rating_questions
 
     return data, rating_questions
 
