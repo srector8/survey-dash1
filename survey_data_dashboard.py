@@ -20,7 +20,7 @@ def main():
 
     if file_path is not None:
         # Read the uploaded CSV file
-        data = pd.read_csv(uploaded_file)
+        data = pd.read_csv(file_path)
 
         # Convert the timestamp to datetime and extract the date
         data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%y %H:%M').dt.date
