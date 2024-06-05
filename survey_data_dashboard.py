@@ -10,17 +10,17 @@ Original file is located at
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
+import io
 
 def main():
     st.title("Survey Data Dashboard")
 
-    # Path to the CSV file
-    file_path = "Feedback-Responses-2024-05-17_updated.csv"
+    # File upload widget
+    uploaded_file = st.file_uploader("Upload CSV", type="csv")
 
-    # Read the CSV file
-    try:
-        data = pd.read_csv(file_path)
-        st.write("CSV file loaded successfully!")
+    if uploaded_file is not None:
+        # Read the uploaded CSV file
+        data = pd.read_csv(uploaded_file)
 
         # Convert the timestamp to datetime and extract the date
         data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%y %H:%M').dt.date
@@ -42,14 +42,12 @@ def main():
 
         # Filter out rows with None game_day
         data = data.dropna(subset=['game_day'])
-        st.write(f"Data after filtering: {data.shape[0]} rows")
 
         # Convert rating column to integers
         try:
             data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(int)
         except ValueError:
             st.error("Error: Some values in 'choice_text' column are not numeric.")
-            return
 
         # Create a dropdown for selecting a game day
         game_day = st.selectbox("Select Game Day", sorted(data['game_day'].unique()))
@@ -57,41 +55,22 @@ def main():
         # Plot graphs and count tables based on selected game day
         plot_data(data, game_day)
 
-    except FileNotFoundError:
-        st.error(f"Error: File '{file_path}' not found.")
-    except pd.errors.ParserError:
-        st.error("Error: Could not parse the CSV file. Please check the file format.")
-    except Exception as e:
-        st.error(f"An unexpected error occurred: {e}")
-
 def plot_data(data, game_day):
     st.write(f"Game Day: {game_day}")
 
     filtered_data = data[data['game_day'] == game_day]
-    st.write(f"Filtered data for {game_day}: {filtered_data.shape[0]} rows")
     questions = sorted(filtered_data['question'].unique())  # Sort questions
-    st.write(f"Questions found: {questions}")
-
-    if not questions:
-        st.write("No questions found for the selected game day.")
-        return
 
     for question in questions:
         st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
-        st.write(f"Data for question '{question}': {question_data.shape[0]} rows")
-        st.write(question_data.head())  # Show the first few rows of the filtered data for the question
-
-        if question_data.empty:
-            st.write(f"No data for question: {question}")
-            continue
 
         # Generate bar chart using Matplotlib
         fig, ax = plt.subplots()
         question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-        ax.set_title(f'Question: {question}')
-        ax.set_xlabel('Choices')
-        ax.set_ylabel('Frequency')
+        plt.title(f'Question: {question}')
+        plt.xlabel('Choices')
+        plt.ylabel('Frequency')
 
         # Display bar chart in Streamlit
         st.pyplot(fig)
