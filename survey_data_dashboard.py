@@ -11,6 +11,10 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 
+import pandas as pd
+import streamlit as st
+import matplotlib.pyplot as plt
+
 def main():
     st.title("Survey Data Dashboard")
 
@@ -68,11 +72,18 @@ def plot_data(data, game_day):
     st.write(f"Game Day: {game_day}")
 
     filtered_data = data[data['game_day'] == game_day]
+    st.write(f"Filtered data for {game_day}: {filtered_data.shape[0]} rows")
     questions = sorted(filtered_data['question'].unique())  # Sort questions
+    st.write(f"Questions found: {questions}")
+
+    if not questions:
+        st.write("No questions found for the selected game day.")
+        return
 
     for question in questions:
         st.subheader(f'Question: {question}')
         question_data = filtered_data[filtered_data['question'] == question]
+        st.write(f"Data for question '{question}': {question_data.shape[0]} rows")
 
         # Generate bar chart using Matplotlib
         fig, ax = plt.subplots()
