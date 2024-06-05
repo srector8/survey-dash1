@@ -19,7 +19,7 @@ def preprocess_data(data):
         pass
 
     # Find questions that require a numeric rating
-    rating_questions = data[data['question'].str.contains('rating', case=False) & (data['choice_text'].apply(lambda x: isinstance(x, (int, float))))]
+    rating_questions = data['choice_text'].apply(lambda x: isinstance(x, (int, float)))
     rating_questions = rating_questions['question'].unique()
 
     return data, rating_questions
