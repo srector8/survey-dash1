@@ -20,6 +20,7 @@ def main():
     # Read the CSV file
     try:
         data = pd.read_csv(file_path)
+        st.write("CSV file loaded successfully!")
 
         # Convert the timestamp to datetime and extract the date
         data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%y %H:%M').dt.date
@@ -41,6 +42,7 @@ def main():
 
         # Filter out rows with None game_day
         data = data.dropna(subset=['game_day'])
+        st.write(f"Data after filtering: {data.shape[0]} rows")
 
         # Convert rating column to integers
         try:
@@ -59,6 +61,8 @@ def main():
         st.error(f"Error: File '{file_path}' not found.")
     except pd.errors.ParserError:
         st.error("Error: Could not parse the CSV file. Please check the file format.")
+    except Exception as e:
+        st.error(f"An unexpected error occurred: {e}")
 
 def plot_data(data, game_day):
     st.write(f"Game Day: {game_day}")
@@ -73,9 +77,9 @@ def plot_data(data, game_day):
         # Generate bar chart using Matplotlib
         fig, ax = plt.subplots()
         question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-        plt.title(f'Question: {question}')
-        plt.xlabel('Choices')
-        plt.ylabel('Frequency')
+        ax.set_title(f'Question: {question}')
+        ax.set_xlabel('Choices')
+        ax.set_ylabel('Frequency')
 
         # Display bar chart in Streamlit
         st.pyplot(fig)
