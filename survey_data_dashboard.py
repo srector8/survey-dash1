@@ -61,7 +61,6 @@ def main():
         plot_data(filtered_data, question)
 
 def plot_data(data, question):
-    st.write(f"Question: {question}")
 
     question_data = data[data['question'] == question]
 
