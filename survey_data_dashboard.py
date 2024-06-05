@@ -23,8 +23,11 @@ def preprocess_data(data):
 
     rating_questions = numeric_questions[numeric_questions].index.tolist()
 
-    return data, rating_questions
+    # Filter out 'Test Question' if present
+    if 'Test Question' in rating_questions:
+        rating_questions.remove('Test Question')
 
+    return data, rating_questions
 
 
 
