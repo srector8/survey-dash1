@@ -70,7 +70,7 @@ def main():
         # Categorize the responses based on the date
         def categorize_date(date):
             for start_date, end_date in game_days:
-                if start_date <= date <= end_date:
+                if start_date <= date < end_date:
                     return start_date.strftime('%Y-%m-%d')
             return None
 
