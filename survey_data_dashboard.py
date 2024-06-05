@@ -49,7 +49,7 @@ def main():
             st.error("Error: Some values in 'choice_text' column are not numeric.")
 
         # Create tabs
-        tab1, tab2 = st.tabs(["Cumulative Data by Question (over specified dates)", "Single Question Comparison by Date"])
+        tab1, tab2 = st.tabs(["Multi-Question by Date", "Single Question Comparison by Date"])
 
         with tab1:
             st.header("Multi-Question by Date")
@@ -114,6 +114,12 @@ def plot_comparison_data(data, question, game_days):
 
     # Display bar charts side by side in Streamlit
     st.pyplot(fig)
+    
+    # Display count tables
+    for game_day in game_days:
+        st.subheader(f'Game Day: {game_day}')
+        game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
+        st.table(game_day_data['choice_text'].value_counts().sort_index())
 
 if __name__ == "__main__":
     main()
