@@ -158,14 +158,14 @@ def plot_average_ratings(data, selected_rating_questions):
     for question in selected_rating_questions:
         question_data = data[data['question'] == question]
 
-        # Calculate average rating for each date
-        average_ratings = question_data.groupby('date')['choice_text'].mean()
+        # Calculate average rating for each game day
+        average_ratings = question_data.groupby('game_day')['choice_text'].mean()
 
         # Plot time-series bar plot
         plt.figure(figsize=(10, 5))
         average_ratings.plot(kind='bar')
         plt.title(f'Average Rating Over Time for "{question}"')
-        plt.xlabel('Date')
+        plt.xlabel('Game Day')
         plt.ylabel('Average Rating')
         plt.xticks(rotation=45, ha='right')
         plt.tight_layout()
