@@ -123,7 +123,7 @@ def plot_comparison_data(data, question, game_days):
     cols = st.columns(len(game_days))
     for col, game_day in zip(cols, game_days):
         with col:
-            st.subheader(f'Game Day: {game_day}')
+           
             game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
             percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
             percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
