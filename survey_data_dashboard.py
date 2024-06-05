@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 
 def preprocess_data(data):
     try:
-        # Convert 'choice_text' column to numeric
-        data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(float)
+        # Check if 'choice_text' column values can be converted to float
+        data['choice_text'] = data['choice_text'].apply(lambda x: float(x) if isinstance(x, (int, float)) or x.replace('.', '', 1).isdigit() else x)
     except ValueError:
         pass
 
@@ -24,6 +24,7 @@ def preprocess_data(data):
     rating_questions = numeric_questions[numeric_questions].index.tolist()
 
     return data, rating_questions
+
 
 
 
