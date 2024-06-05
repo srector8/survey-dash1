@@ -192,5 +192,9 @@ def plot_average_ratings(data, selected_rating_questions):
         # Display bar plot in Streamlit
         st.pyplot(plt)
 
+        # Display average ratings table
+        st.table(average_ratings.reset_index().rename(columns={'game_day': 'Game Day', 'choice_text': 'Average Rating'}))
+
+
 if __name__ == "__main__":
     main()
