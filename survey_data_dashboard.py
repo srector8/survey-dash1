@@ -11,6 +11,19 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 
+def preprocess_data(data):
+    try:
+        # Convert 'choice_text' column to numeric
+        data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(float)
+    except ValueError:
+        pass
+
+    # Find questions that require a numeric rating
+    rating_questions = data[data['question'].str.contains('rating', case=False) & (data['choice_text'].apply(lambda x: isinstance(x, (int, float))))]
+    rating_questions = rating_questions['question'].unique()
+
+    return data, rating_questions
+
 def main():
     st.title("Survey Data Dashboard")
 
@@ -21,8 +34,8 @@ def main():
         # Read the uploaded CSV file
         data = pd.read_csv(file_path)
 
-        # Convert the timestamp to datetime and extract the date
-        data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%y %H:%M').dt.date
+        # Preprocess the data
+        data, rating_questions = preprocess_data(data)
 
         # Define game days
         game_day_1 = pd.to_datetime('2024-05-14').date()
@@ -41,12 +54,6 @@ def main():
 
         # Filter out rows with None game_day
         data = data.dropna(subset=['game_day'])
-
-        # Convert rating column to integers
-        try:
-            data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(float)
-        except ValueError:
-            pass
 
         # Create tabs
         tab1, tab2, tab3 = st.tabs(["Multi-Question by Date", "Single Question Comparison by Date", "Average Ratings by Date"])
@@ -81,21 +88,14 @@ def main():
 
         with tab3:
             st.header("Average Ratings by Date")
-            # Get rating questions
-            rating_questions = get_rating_questions(data)
-
-            # Create a multiselect for selecting rating questions
-            selected_rating_questions = st.multiselect("Select Rating Questions", rating_questions)
-
-            if selected_rating_questions:
-                plot_average_ratings(data, selected_rating_questions)
+            if rating_questions:
+                selected_rating_questions = st.multiselect("Select Rating Questions", rating_questions)
+                if selected_rating_questions:
+                    plot_average_ratings(data, selected_rating_questions)
+                else:
+                    st.warning("Please select at least one rating question.")
             else:
-                st.warning("Please select at least one rating question.")
-
-def get_rating_questions(data):
-    # Find questions that require a numeric rating
-    rating_questions = data[data['question'].str.contains('rating', case=False) & (data['choice_text'].apply(lambda x: isinstance(x, (int, float))))]
-    return rating_questions['question'].unique()
+                st.warning("No rating questions found in the dataset.")
 
 def plot_data(data, questions):
     for question in questions:
