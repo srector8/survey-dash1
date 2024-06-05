@@ -10,17 +10,16 @@ Original file is located at
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-import io
 
 def main():
     st.title("Survey Data Dashboard")
 
-    # File upload widget
-    uploaded_file = st.file_uploader("Upload CSV", type="csv")
+    # Path to the CSV file
+    file_path = "Feedback-Responses-2024-05-17_updated.csv"
 
-    if uploaded_file is not None:
-        # Read the uploaded CSV file
-        data = pd.read_csv(uploaded_file)
+    # Read the CSV file
+    try:
+        data = pd.read_csv(file_path)
 
         # Convert the timestamp to datetime and extract the date
         data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%y %H:%M').dt.date
@@ -48,12 +47,18 @@ def main():
             data['choice_text'] = pd.to_numeric(data['choice_text'], errors='raise').astype(int)
         except ValueError:
             st.error("Error: Some values in 'choice_text' column are not numeric.")
+            return
 
         # Create a dropdown for selecting a game day
         game_day = st.selectbox("Select Game Day", sorted(data['game_day'].unique()))
 
         # Plot graphs and count tables based on selected game day
         plot_data(data, game_day)
+
+    except FileNotFoundError:
+        st.error(f"Error: File '{file_path}' not found.")
+    except pd.errors.ParserError:
+        st.error("Error: Could not parse the CSV file. Please check the file format.")
 
 def plot_data(data, game_day):
     st.write(f"Game Day: {game_day}")
