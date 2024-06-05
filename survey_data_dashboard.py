@@ -48,34 +48,34 @@ def main():
         except ValueError:
             st.error("Error: Some values in 'choice_text' column are not numeric.")
 
-        # Create a dropdown for selecting a game day
-        game_day = st.selectbox("Select Game Day", sorted(data['game_day'].unique()))
+        # Create a multiselect for selecting game days
+        game_days = st.multiselect("Select Game Days", sorted(data['game_day'].unique()))
+
+        # Filter the data based on the selected game days
+        filtered_data = data[data['game_day'].isin(game_days)]
+
+        # Create a multiselect for selecting questions based on the filtered data
+        questions = st.multiselect("Select Questions", sorted(filtered_data['question'].unique()))
+
+        # Plot graphs and count tables based on selected game days and questions
+        plot_data(filtered_data, questions)
+
+def plot_data(data, questions):
+    for question in questions:
+        question_data = data[data['question'] == question]
+
+        # Generate bar chart using Matplotlib
+        fig, ax = plt.subplots()
+        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
+        plt.title(f'Question: {question}')
+        plt.xlabel('Choices')
+        plt.ylabel('Frequency')
+
+        # Display bar chart in Streamlit
+        st.pyplot(fig)
         
-        # Filter the data based on the selected game day
-        filtered_data = data[data['game_day'] == game_day]
-
-        # Create a dropdown for selecting a question based on the filtered data
-        question = st.selectbox("Select Question", sorted(filtered_data['question'].unique()))
-
-        # Plot graphs and count tables based on selected game day and question
-        plot_data(filtered_data, question)
-
-def plot_data(data, question):
-
-    question_data = data[data['question'] == question]
-
-    # Generate bar chart using Matplotlib
-    fig, ax = plt.subplots()
-    question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-    plt.title(f'Question: {question}')
-    plt.xlabel('Choices')
-    plt.ylabel('Frequency')
-
-    # Display bar chart in Streamlit
-    st.pyplot(fig)
-    
-    # Display count table
-    st.table(question_data['choice_text'].value_counts().sort_index())
+        # Display count table
+        st.table(question_data['choice_text'].value_counts().sort_index())
 
 if __name__ == "__main__":
     main()
