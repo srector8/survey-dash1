@@ -19,10 +19,12 @@ def preprocess_data(data):
         pass
 
     # Find questions that have numeric values in the 'choice_text' column
-    numeric_questions = data.groupby('question')['choice_text'].apply(lambda x: x.apply(lambda y: isinstance(y, (int, float)))).any(level=0)
+    numeric_questions = data.groupby('question')['choice_text'].apply(lambda x: x.apply(lambda y: isinstance(y, (int, float))).any())
+
     rating_questions = numeric_questions[numeric_questions].index.tolist()
 
     return data, rating_questions
+
 
 
 def main():
