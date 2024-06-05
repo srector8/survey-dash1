@@ -86,6 +86,8 @@ def main():
 
         with tab1:
             st.header("Cumulative Responses by Question")
+            st.write("Select multiple questions and game days to see the distribution of responses.")
+
             # Create a multiselect for selecting game days
             game_days = st.multiselect("Select Game Days", sorted(data['game_day'].unique()))
 
@@ -100,6 +102,8 @@ def main():
 
         with tab2:
             st.header("Single Question Comparison by Date")
+            st.write("Select a single question and multiple game days for comparison.")
+            
             # Create a selectbox for selecting a question
             question = st.selectbox("Select Question", sorted(data['question'].unique()))
 
@@ -114,6 +118,8 @@ def main():
 
         with tab3:
             st.header("Average Ratings by Date")
+            st.write("Select rating questions to see the average ratings over time.")
+            
             if rating_questions:
                 selected_rating_questions = st.multiselect("Select Rating Questions", rating_questions)
                 if selected_rating_questions:
