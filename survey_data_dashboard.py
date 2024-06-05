@@ -74,7 +74,10 @@ def main():
             comparison_game_days = st.multiselect("Select Game Days for Comparison", sorted(data['game_day'].unique()))
 
             # Plot graphs side by side for comparison
-            plot_comparison_data(data, question, comparison_game_days)
+            if comparison_game_days:
+                plot_comparison_data(data, question, comparison_game_days)
+            else:
+                st.warning("Please select at least one game day for comparison.")
 
 def plot_data(data, questions):
     for question in questions:
