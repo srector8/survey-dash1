@@ -97,6 +97,56 @@ def get_rating_questions(data):
     rating_questions = data[data['question'].str.contains('rating', case=False) & (data['choice_text'].apply(lambda x: isinstance(x, (int, float))))]
     return rating_questions['question'].unique()
 
+def plot_data(data, questions):
+    for question in questions:
+        question_data = data[data['question'] == question]
+
+        # Generate bar chart using Matplotlib
+        fig, ax = plt.subplots()
+        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
+        plt.title(f'Question: {question}')
+        plt.xlabel('Choices')
+        plt.ylabel('Frequency')
+
+        # Display bar chart in Streamlit
+        st.pyplot(fig)
+        
+        # Display count table
+        st.table(question_data['choice_text'].value_counts().sort_index())
+
+def plot_comparison_data(data, question, game_days):
+    fig, axs = plt.subplots(1, len(game_days), figsize=(15, 5), sharey=True)
+
+    if len(game_days) == 1:
+        axs = [axs]  # Make sure axs is iterable if there's only one game day selected
+
+    for ax, game_day in zip(axs, game_days):
+        game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
+        proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
+        proportions.plot(kind='bar', ax=ax)
+        ax.set_title(f'Game Day: {game_day}')
+        ax.set_xlabel('Choices')
+        ax.set_ylabel('Percentage')
+
+        # Format y-axis as percentage with one decimal
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.1f}%'))
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Display bar charts side by side in Streamlit
+    st.pyplot(fig)
+    
+    # Display percentage tables side by side
+    cols = st.columns(len(game_days))
+    for col, game_day in zip(cols, game_days):
+        with col:
+            st.subheader(f'Game Day: {game_day}')
+            game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
+            percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
+            percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
+            st.table(percentages_table)
+
 def plot_average_ratings(data, selected_rating_questions):
     for question in selected_rating_questions:
         question_data = data[data['question'] == question]
