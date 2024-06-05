@@ -120,7 +120,6 @@ def plot_comparison_data(data, question, game_days):
     cols = st.columns(len(game_days))
     for col, game_day in zip(cols, game_days):
         with col:
-            st.subheader(f'Game Day: {game_day}')
             game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
             proportions_table = game_day_data['choice_text'].value_counts(normalize=True).sort_index()
             st.table(proportions_table)
