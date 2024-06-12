@@ -39,7 +39,7 @@ def main():
         # Read the uploaded CSV file
         data = pd.read_csv(file_path)
 
-        data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%y %H:%M').dt.date
+        data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%Y %H:%M').dt.date
 
         # Preprocess the data
         data, rating_questions = preprocess_data(data)
