@@ -81,7 +81,7 @@ def main():
         data = data.dropna(subset=['game_day'])
 
         # Create tabs
-        tab1, tab2, tab3 = st.tabs(["Cumulative Responses by Question", , "Average Ratings by Date", "Single Question Comparison by Date"])
+        tab1, tab2, tab3 = st.tabs(["Cumulative Responses by Question", "Average Ratings by Date", "Single Question Comparison by Date"])
 
         with tab1:
             st.header("Cumulative Responses by Question")
