@@ -156,15 +156,30 @@ def plot_comparison_data(data, question, game_days):
         # Create a bar chart using Altair
         chart = alt.Chart(game_day_data).mark_bar().encode(
             x=alt.X('choice_text', type='nominal', title='Choices'),
-            y=alt.Y('percentage', axis=alt.Axis(format='%', title='Percentage')),
+            y=alt.Y('percentage', axis=alt.Axis(format='%'), title='Percentage'),
             tooltip=['choice_text', alt.Tooltip('percentage:Q', format='.1f')],
         ).transform_calculate(
             percentage='datum.count_*100'
         ).properties(
             title=f'Game Day: {game_day}'
+        ).facet(
+            column='game_day:N'
         ).interactive()
 
         charts.append(chart)
+
+    # Display charts using facets in Streamlit
+    st.altair_chart(alt.vconcat(*charts), use_container_width=True)
+
+    # Display percentage tables side by side
+    cols = st.columns(len(game_days))
+    for col, game_day in zip(cols, game_days):
+        with col:
+            game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
+            percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
+            percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
+            st.table(percentages_table)
+
 
     # Display charts side by side in Streamlit
     st.altair_chart(alt.hconcat(*charts), use_container_width=True)
