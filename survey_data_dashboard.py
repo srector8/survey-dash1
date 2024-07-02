@@ -164,7 +164,7 @@ def plot_comparison_data(data, question, game_days):
         # Create a bar chart using Altair
         chart = alt.Chart(proportions_df).mark_bar(size=30).encode(
             x=alt.X('choice_text', type='nominal', title='Choices'),
-            y=alt.Y('percentage:Q', axis=alt.Axis(format='%'), title='Percentage'),
+            y=alt.Y('percentage:Q', title='Percentage'),
             tooltip=['choice_text', alt.Tooltip('percentage:Q', format='.1f')],
         ).properties(
             title=f'Game Day: {game_day}',
