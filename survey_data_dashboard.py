@@ -170,7 +170,7 @@ def plot_comparison_data(data, question, game_days):
         
         charts.append(chart)
 
-     if charts:  # Ensure charts list is not empty
+    if charts:  # Ensure charts list is not empty
         # Display charts side by side using Altair's hconcat
         st.altair_chart(alt.hconcat(*charts), use_container_width=True)
     else:
