@@ -8,7 +8,7 @@ Original file is located at
 """
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
+import altair as alt
 
 def preprocess_data(data):
     try:
@@ -73,17 +73,14 @@ def main():
                     return start_date.strftime('%Y-%m-%d')
             return None
 
-        
-        # Categorize the responses based on the date
         data['game_day'] = data['date'].apply(categorize_date)
-
-        # Filter out rows with None game_day
         data = data.dropna(subset=['game_day'])
 
         # Create tabs
-        tab1, tab2, tab3 = st.tabs(["Cumulative Responses by Question", "Single Question Comparison by Date", "Average Ratings by Date"])
+        tabs = ["Cumulative Responses by Question", "Single Question Comparison by Date", "Average Ratings by Date"]
+        tab = st.tabs(tabs)
 
-        with tab1:
+        if tab == tabs[0]:
             st.header("Cumulative Responses by Question")
             st.write("Select multiple questions and game days to see the distribution of responses.")
 
@@ -93,7 +90,7 @@ def main():
             if game_days_select and questions_select:
                 plot_data_altair(data, questions_select, game_days_select)
 
-        with tab2:
+        elif tab == tabs[1]:
             st.header("Single Question Comparison by Date")
             st.write("Select a single question and multiple game days for comparison.")
 
@@ -103,7 +100,7 @@ def main():
             if question_select and comparison_game_days_select:
                 plot_comparison_data_altair(data, question_select, comparison_game_days_select)
 
-        with tab3:
+        elif tab == tabs[2]:
             st.header("Average Ratings by Date")
             st.write("Select rating questions to see the average ratings over time.")
 
@@ -132,61 +129,62 @@ def plot_data_altair(data, questions, game_days):
         # Display the chart using Streamlit
         st.altair_chart(chart, use_container_width=True)
 
-def plot_comparison_data(data, question, game_days):
-    fig, axs = plt.subplots(1, len(game_days), figsize=(15, 5), sharey=True)
+def plot_comparison_data_altair(data, question, game_days):
+    # Create a list of game day labels for the legend
+    game_day_labels = [f'Game Day: {day}' for day in game_days]
 
-    if len(game_days) == 1:
-        axs = [axs]  # Make sure axs is iterable if there's only one game day selected
+    # Create a dictionary to store Altair charts
+    charts = {}
 
-    for ax, game_day in zip(axs, game_days):
-        game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-        proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
-        proportions.plot(kind='bar', ax=ax)
-        ax.set_title(f'Game Day: {game_day}')
-        ax.set_xlabel('Choices')
-        ax.set_ylabel('Percentage')
+    # Generate Altair charts for each game day
+    for i, day in enumerate(game_days):
+        game_day_data = data[(data['game_day'] == day) & (data['question'] == question)]
 
-        # Format y-axis as percentage with one decimal
-        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.1f}%'))
+        # Create an Altair bar chart
+        chart = alt.Chart(game_day_data).mark_bar().encode(
+            x=alt.X('choice_text:N', title='Choices'),
+            y=alt.Y('count():Q', title='Frequency'),
+            color=alt.value('steelblue'),
+            tooltip=['choice_text', 'count()']
+        ).properties(
+            title=f'Game Day: {day}'
+        ).interactive()
 
-    # Adjust layout
-    plt.tight_layout()
+        # Store the chart in the dictionary
+        charts[game_day_labels[i]] = chart
 
-    # Display bar charts side by side in Streamlit
-    st.pyplot(fig)
-    
-    # Display percentage tables side by side
-    cols = st.columns(len(game_days))
-    for col, game_day in zip(cols, game_days):
-        with col:
-            
-            game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-            percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
-            percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
-            st.table(percentages_table)
+    # Combine all charts into a single Altair chart object
+    combined_chart = alt.vconcat(*charts.values())
 
-def plot_average_ratings(data, selected_rating_questions):
+    # Display the combined chart using Streamlit
+    st.altair_chart(combined_chart, use_container_width=True)
+
+def plot_average_ratings_altair(data, selected_rating_questions):
+    # Create a dictionary to store Altair charts
+    charts = {}
+
+    # Generate Altair charts for each selected rating question
     for question in selected_rating_questions:
         question_data = data[data['question'] == question]
 
         # Calculate average rating for each game day
-        average_ratings = question_data.groupby('game_day')['choice_text'].mean()
+        average_ratings = question_data.groupby('game_day')['choice_text'].mean().reset_index()
 
-        # Plot time-series bar plot
-        plt.figure(figsize=(10, 5))
-        average_ratings.plot(kind='bar')
-        plt.title(f'Average Rating Over Time for "{question}"')
-        plt.xlabel('Game Day')
-        plt.ylabel('Average Rating')
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
+        # Create an Altair line chart
+        chart = alt.Chart(average_ratings).mark_line().encode(
+            x=alt.X('game_day:T', title='Game Day'),
+            y=alt.Y('choice_text:Q', title='Average Rating'),
+            tooltip=['game_day', 'choice_text']
+        ).properties(
+            title=f'Average Rating Over Time for "{question}"'
+        ).interactive()
 
-        # Display bar plot in Streamlit
-        st.pyplot(plt)
+        # Store the chart in the dictionary
+        charts[question] = chart
 
-        # Display average ratings table
-        st.table(average_ratings.reset_index().rename(columns={'game_day': 'Game Day', 'choice_text': 'Average Rating'}))
-
+    # Display the charts using Streamlit
+    for chart in charts.values():
+        st.altair_chart(chart, use_container_width=True)
 
 if __name__ == "__main__":
     main()
