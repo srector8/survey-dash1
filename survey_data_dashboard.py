@@ -165,8 +165,6 @@ def plot_comparison_data(data, question, game_days):
             x=alt.X('choice_text', type='nominal', title='Choices'),
             y=alt.Y('percentage', axis=alt.Axis(format='%'), title='Percentage'),
             tooltip=['choice_text', alt.Tooltip('percentage:Q', format='.1f')],
-        ).transform_calculate(
-            percentage='datum.count_*100'
         ).properties(
             title=f'Game Day: {game_day}'
         )
