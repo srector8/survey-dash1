@@ -194,7 +194,7 @@ def plot_average_ratings(data, selected_rating_questions):
 
         # Create a bar chart using Altair
         chart = alt.Chart(average_ratings).mark_bar().encode(
-            x=alt.X('game_day:T', title='Game Day'),
+            x=alt.X('game_day:O', title='Game Day'),
             y=alt.Y('choice_text:Q', title='Average Rating'),
             tooltip=['game_day:T', 'choice_text:Q']
         ).properties(
