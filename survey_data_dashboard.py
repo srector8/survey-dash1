@@ -156,9 +156,8 @@ def plot_comparison_data(data, question, game_days):
         
         proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
 
-        game_day_data['percentage'] = game_day_data['choice_text'].map(
-                game_day_data['choice_text'].value_counts(normalize=True) * 100
-        )
+        choice_counts = game_day_data['choice_text'].value_counts(normalize=True) * 100
+        game_day_data = game_day_data.assign(percentage=game_day_data['choice_text'].map(choice_counts))
 
         # Create a bar chart using Altair
         chart = alt.Chart(game_day_data).mark_bar().encode(
@@ -168,10 +167,7 @@ def plot_comparison_data(data, question, game_days):
         ).properties(
             title=f'Game Day: {game_day}'
         )
-        
-
-        
-
+    
         charts.append(chart)
 
     st.write(charts)
@@ -180,8 +176,6 @@ def plot_comparison_data(data, question, game_days):
         st.altair_chart(alt.hconcat(*charts), use_container_width=True)
     else:
         st.write("No charts to display.")
-
-
 
     # Display percentage tables side by side
     cols = st.columns(len(game_days))
