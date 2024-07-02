@@ -153,7 +153,7 @@ def plot_comparison_data(data, question, game_days):
     charts = []
     for game_day in game_days:
         game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-        proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
+        proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index()
         
         proportions_df = pd.DataFrame({
             'choice_text': proportions.index,
@@ -164,7 +164,7 @@ def plot_comparison_data(data, question, game_days):
         # Create a bar chart using Altair
         chart = alt.Chart(proportions_df).mark_bar(size=30).encode(
             x=alt.X('choice_text', type='nominal', title='Choices'),
-            y=alt.Y('percentage:Q', title='Percentage'),
+            y=alt.Y('percentage:Q', axis=alt.Axis(format='%'), title='Percentage'),
             tooltip=['choice_text', alt.Tooltip('percentage:Q', format='.1f')],
         ).properties(
             title=f'Game Day: {game_day}',
@@ -201,6 +201,7 @@ def plot_average_ratings(data, selected_rating_questions):
             tooltip=['game_day:T', 'choice_text:Q']
         ).properties(
             title=f'Average Rating Over Time for "{question}"'
+            width=600
         ).interactive()
 
         # Display the chart in Streamlit
