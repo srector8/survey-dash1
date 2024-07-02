@@ -165,22 +165,14 @@ def plot_comparison_data(data, question, game_days):
         ).properties(
             title=f'Game Day: {game_day}'
         )
+        
+        print(chart)
 
+        
         charts.append(chart)
+    print(charts)
 
     # Display charts side by side using Altair's hconcat
-    st.altair_chart(alt.hconcat(*charts), use_container_width=True)
-
-    # Display percentage tables side by side
-    cols = st.columns(len(game_days))
-    for col, game_day in zip(cols, game_days):
-        with col:
-            game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-            percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
-            percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
-            st.table(percentages_table)
-
-    # Display charts side by side in Streamlit
     st.altair_chart(alt.hconcat(*charts), use_container_width=True)
 
     # Display percentage tables side by side
