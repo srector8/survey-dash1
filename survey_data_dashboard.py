@@ -12,8 +12,29 @@ import streamlit as st
 import altair as alt
 
 def preprocess_data(data):
-    # Your preprocess_data function remains unchanged
-    # ...
+    
+
+import pandas as pd
+import streamlit as st
+import altair as alt
+\
+def preprocess_data(data):
+    try:
+        # Check if 'choice_text' column values can be converted to float
+        data['choice_text'] = data['choice_text'].apply(lambda x: float(x) if isinstance(x, (int, float)) or x.replace('.', '', 1).isdigit() else x)
+    except ValueError:
+        pass
+
+    # Find questions that have numeric values in the 'choice_text' column
+    numeric_questions = data.groupby('question')['choice_text'].apply(lambda x: x.apply(lambda y: isinstance(y, (int, float))).any())
+
+    rating_questions = numeric_questions[numeric_questions].index.tolist()
+
+    # Filter out 'Test Question' if present
+    if 'Test Question' in rating_questions:
+        rating_questions.remove('Test Question')
+
+    return data, rating_questions
 
 def main():
     st.title("Survey Data Dashboard")
@@ -32,13 +53,33 @@ def main():
 
         # Define game days
         game_days = [
-            # Define your game_days as before
+            (pd.to_datetime('2024-05-14').date(), pd.to_datetime('2024-05-17').date()),
+            (pd.to_datetime('2024-05-17').date(), pd.to_datetime('2024-05-23').date()),
+            (pd.to_datetime('2024-05-23').date(), pd.to_datetime('2024-05-28').date()),
+            (pd.to_datetime('2024-05-28').date(), pd.to_datetime('2024-05-31').date()),
+            (pd.to_datetime('2024-05-31').date(), pd.to_datetime('2024-06-04').date()),
+            (pd.to_datetime('2024-06-04').date(), pd.to_datetime('2024-06-08').date()),
+            (pd.to_datetime('2024-06-08').date(), pd.to_datetime('2024-06-10').date()),
+            (pd.to_datetime('2024-06-10').date(), pd.to_datetime('2024-06-18').date()),
+            (pd.to_datetime('2024-06-18').date(), pd.to_datetime('2024-06-28').date()),
+            (pd.to_datetime('2024-06-28').date(), pd.to_datetime('2024-07-07').date()),
+            (pd.to_datetime('2024-07-07').date(), pd.to_datetime('2024-07-10').date()),
+            (pd.to_datetime('2024-07-10').date(), pd.to_datetime('2024-07-14').date()),
+            (pd.to_datetime('2024-07-14').date(), pd.to_datetime('2024-08-20').date()),
+            (pd.to_datetime('2024-08-20').date(), pd.to_datetime('2024-08-23').date()),
+            (pd.to_datetime('2024-08-23').date(), pd.to_datetime('2024-09-01').date()),
+            (pd.to_datetime('2024-09-01').date(), pd.to_datetime('2024-09-03').date()),
+            (pd.to_datetime('2024-09-03').date(), pd.to_datetime('2024-09-06').date()),
+            (pd.to_datetime('2024-09-06').date(), pd.to_datetime('2024-09-17').date()),
+            (pd.to_datetime('2024-09-17').date(), pd.to_datetime('2024-09-19').date())
         ]
 
         # Categorize the responses based on the date
         def categorize_date(date):
-            # Your categorize_date function remains unchanged
-            # ...
+            for start_date, end_date in game_days:
+                if start_date <= date < end_date:
+                    return start_date.strftime('%Y-%m-%d')
+            return None
 
         data['game_day'] = data['date'].apply(categorize_date)
         data = data.dropna(subset=['game_day'])
