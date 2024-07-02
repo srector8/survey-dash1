@@ -153,7 +153,11 @@ def plot_comparison_data(data, question, game_days):
     charts = []
     for game_day in game_days:
         game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
+        
         proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
+
+        st.write(game_day_data)
+
 
         # Create a bar chart using Altair
         chart = alt.Chart(game_day_data).mark_bar().encode(
@@ -174,7 +178,6 @@ def plot_comparison_data(data, question, game_days):
     st.write(charts)
 
     if charts:  # Ensure charts list is not empty
-        # Display charts side by side using Altair's hconcat
         st.altair_chart(alt.hconcat(*charts), use_container_width=True)
     else:
         st.write("No charts to display.")
