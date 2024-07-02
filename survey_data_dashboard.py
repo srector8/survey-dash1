@@ -8,7 +8,7 @@ Original file is located at
 """
 import pandas as pd
 import streamlit as st
-import altair as alt
+import matplotlib.pyplot as plt
 
 def preprocess_data(data):
     try:
@@ -73,68 +73,133 @@ def main():
                     return start_date.strftime('%Y-%m-%d')
             return None
 
+        
+        # Categorize the responses based on the date
         data['game_day'] = data['date'].apply(categorize_date)
+
+        # Filter out rows with None game_day
         data = data.dropna(subset=['game_day'])
 
         # Create tabs
-        tab1, tab2, tab3 = st.columns(3)
+        tab1, tab2, tab3 = st.tabs(["Cumulative Responses by Question", "Single Question Comparison by Date", "Average Ratings by Date"])
 
         with tab1:
             st.header("Cumulative Responses by Question")
             st.write("Select multiple questions and game days to see the distribution of responses.")
 
-            game_days_select = st.multiselect("Select Game Days", sorted(data['game_day'].unique()))
-            questions_select = st.multiselect("Select Questions", sorted(data['question'].unique()))
+            # Create a multiselect for selecting game days
+            game_days = st.multiselect("Select Game Days", sorted(data['game_day'].unique()))
 
-            if game_days_select and questions_select:
-                plot_data_altair(data, questions_select, game_days_select)
+            # Filter the data based on the selected game days
+            filtered_data = data[data['game_day'].isin(game_days)]
+
+            # Create a multiselect for selecting questions based on the filtered data
+            questions = st.multiselect("Select Questions", sorted(filtered_data['question'].unique()))
+
+            # Plot graphs and count tables based on selected game days and questions
+            plot_data(filtered_data, questions)
 
         with tab2:
             st.header("Single Question Comparison by Date")
             st.write("Select a single question and multiple game days for comparison.")
+            
+            # Create a selectbox for selecting a question
+            question = st.selectbox("Select Question", sorted(data['question'].unique()))
 
-            question_select = st.selectbox("Select Question", sorted(data['question'].unique()))
-            comparison_game_days_select = st.multiselect("Select Game Days for Comparison", sorted(data['game_day'].unique()))
+            # Create a multiselect for selecting game days
+            comparison_game_days = st.multiselect("Select Game Days for Comparison", sorted(data['game_day'].unique()))
 
-            if question_select and comparison_game_days_select:
-                plot_comparison_data_altair(data, question_select, comparison_game_days_select)
+            # Plot graphs side by side for comparison
+            if comparison_game_days:
+                plot_comparison_data(data, question, comparison_game_days)
+            else:
+                st.warning("Please select at least one game day for comparison.")
 
         with tab3:
             st.header("Average Ratings by Date")
             st.write("Select rating questions to see the average ratings over time.")
-
+            
             if rating_questions:
                 selected_rating_questions = st.multiselect("Select Rating Questions", rating_questions)
                 if selected_rating_questions:
-                    plot_average_ratings_altair(data, selected_rating_questions)
+                    plot_average_ratings(data, selected_rating_questions)
                 else:
                     st.warning("Please select at least one rating question.")
             else:
                 st.warning("No rating questions found in the dataset.")
 
-def plot_data_altair(data, questions, game_days):
+def plot_data(data, questions):
     for question in questions:
         question_data = data[data['question'] == question]
 
-        # Create an Altair bar chart
-        chart = alt.Chart(question_data).mark_bar().encode(
-            x=alt.X('choice_text:N', title='Choices'),
-            y=alt.Y('count():Q', title='Frequency'),
-            tooltip=['choice_text', 'count()']
-        ).properties(
-            title=f'Question: {question}'
-        ).interactive()
+        # Generate bar chart using Matplotlib
+        fig, ax = plt.subplots()
+        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
+        plt.title(f'Question: {question}')
+        plt.xlabel('Choices')
+        plt.ylabel('Frequency')
 
-        # Display the chart using Streamlit
-        st.altair_chart(chart, use_container_width=True)
+        # Display bar chart in Streamlit
+        st.pyplot(fig)
+        
+        # Display count table
+        st.table(question_data['choice_text'].value_counts().sort_index())
 
-def plot_comparison_data_altair(data, question, game_days):
-    # Similar logic as above, create Altair charts for comparison
-    pass
+def plot_comparison_data(data, question, game_days):
+    fig, axs = plt.subplots(1, len(game_days), figsize=(15, 5), sharey=True)
 
-def plot_average_ratings_altair(data, selected_rating_questions):
-    # Similar logic as above, create Altair charts for average ratings
-    pass
+    if len(game_days) == 1:
+        axs = [axs]  # Make sure axs is iterable if there's only one game day selected
+
+    for ax, game_day in zip(axs, game_days):
+        game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
+        proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
+        proportions.plot(kind='bar', ax=ax)
+        ax.set_title(f'Game Day: {game_day}')
+        ax.set_xlabel('Choices')
+        ax.set_ylabel('Percentage')
+
+        # Format y-axis as percentage with one decimal
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.1f}%'))
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Display bar charts side by side in Streamlit
+    st.pyplot(fig)
+    
+    # Display percentage tables side by side
+    cols = st.columns(len(game_days))
+    for col, game_day in zip(cols, game_days):
+        with col:
+            
+            game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
+            percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
+            percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
+            st.table(percentages_table)
+
+def plot_average_ratings(data, selected_rating_questions):
+    for question in selected_rating_questions:
+        question_data = data[data['question'] == question]
+
+        # Calculate average rating for each game day
+        average_ratings = question_data.groupby('game_day')['choice_text'].mean()
+
+        # Plot time-series bar plot
+        plt.figure(figsize=(10, 5))
+        average_ratings.plot(kind='bar')
+        plt.title(f'Average Rating Over Time for "{question}"')
+        plt.xlabel('Game Day')
+        plt.ylabel('Average Rating')
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+
+        # Display bar plot in Streamlit
+        st.pyplot(plt)
+
+        # Display average ratings table
+        st.table(average_ratings.reset_index().rename(columns={'game_day': 'Game Day', 'choice_text': 'Average Rating'}))
+
 
 if __name__ == "__main__":
     main()
