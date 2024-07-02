@@ -159,6 +159,9 @@ def plot_comparison_data(data, question, game_days):
         choice_counts = game_day_data['choice_text'].value_counts(normalize=True) * 100
         game_day_data = game_day_data.assign(percentage=game_day_data['choice_text'].map(choice_counts))
 
+        st.write(game_day_data)
+
+
         # Create a bar chart using Altair
         chart = alt.Chart(game_day_data).mark_bar().encode(
             x=alt.X('choice_text', type='nominal', title='Choices'),
