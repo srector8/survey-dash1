@@ -201,8 +201,7 @@ def plot_average_ratings(data, selected_rating_questions):
             y=alt.Y('choice_text:Q', title='Average Rating'),
             tooltip=['game_day:T', 'choice_text:Q']
         ).properties(
-            title=f'Average Rating Over Time for "{question}"'
-            width=600
+            title=f'Average Rating Over Time for "{question}"',
         ).interactive()
 
         # Display the chart in Streamlit
