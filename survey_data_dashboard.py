@@ -168,7 +168,6 @@ def plot_comparison_data(data, question, game_days):
             tooltip=['choice_text', alt.Tooltip('percentage:Q', format='.1f')],
         ).properties(
             title=f'Game Day: {game_day}',
-            width=bar_width  # Set the width of the chart
         )
     
         charts.append(chart)
