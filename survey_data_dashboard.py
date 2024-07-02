@@ -162,14 +162,12 @@ def plot_comparison_data(data, question, game_days):
             percentage='datum.count_*100'
         ).properties(
             title=f'Game Day: {game_day}'
-        ).facet(
-            column='game_day:N'
-        ).interactive()
+        )
 
         charts.append(chart)
 
-    # Display charts using facets in Streamlit
-    st.altair_chart(alt.vconcat(*charts), use_container_width=True)
+    # Display charts side by side using Altair's hconcat
+    st.altair_chart(alt.hconcat(*charts), use_container_width=True)
 
     # Display percentage tables side by side
     cols = st.columns(len(game_days))
@@ -179,7 +177,6 @@ def plot_comparison_data(data, question, game_days):
             percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
             percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
             st.table(percentages_table)
-
 
     # Display charts side by side in Streamlit
     st.altair_chart(alt.hconcat(*charts), use_container_width=True)
