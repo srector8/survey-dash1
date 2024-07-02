@@ -81,7 +81,7 @@ def main():
         data = data.dropna(subset=['game_day'])
 
         # Create tabs
-        tab1, tab2, tab3 = st.tabs(["Cumulative Responses by Question", "Single Question Comparison by Date", "Average Ratings by Date"])
+        tab1, tab2, tab3 = st.tabs(["Cumulative Responses by Question", , "Average Ratings by Date", "Single Question Comparison by Date"])
 
         with tab1:
             st.header("Cumulative Responses by Question")
@@ -100,6 +100,19 @@ def main():
             plot_data(filtered_data, questions)
 
         with tab2:
+            st.header("Average Ratings by Date")
+            st.write("Select rating questions to see the average ratings over time.")
+            
+            if rating_questions:
+                selected_rating_questions = st.multiselect("Select Rating Questions", rating_questions)
+                if selected_rating_questions:
+                    plot_average_ratings(data, selected_rating_questions)
+                else:
+                    st.warning("Please select at least one rating question.")
+            else:
+                st.warning("No rating questions found in the dataset.")
+
+        with tab3:
             st.header("Single Question Comparison by Date")
             st.write("Select a single question and multiple game days for comparison.")
             
@@ -115,18 +128,7 @@ def main():
             else:
                 st.warning("Please select at least one game day for comparison.")
 
-        with tab3:
-            st.header("Average Ratings by Date")
-            st.write("Select rating questions to see the average ratings over time.")
-            
-            if rating_questions:
-                selected_rating_questions = st.multiselect("Select Rating Questions", rating_questions)
-                if selected_rating_questions:
-                    plot_average_ratings(data, selected_rating_questions)
-                else:
-                    st.warning("Please select at least one rating question.")
-            else:
-                st.warning("No rating questions found in the dataset.")
+        
 
 def plot_data(data, questions):
     for question in questions:
