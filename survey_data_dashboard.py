@@ -132,73 +132,75 @@ def plot_data(data, questions):
     for question in questions:
         question_data = data[data['question'] == question]
 
-        # Generate bar chart using Matplotlib
-        fig, ax = plt.subplots()
-        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-        plt.title(f'Question: {question}')
-        plt.xlabel('Choices')
-        plt.ylabel('Frequency')
+        # Create a bar chart using Altair
+        chart = alt.Chart(question_data).mark_bar().encode(
+            x=alt.X('choice_text', type='nominal', title='Choices'),
+            y=alt.Y('count()', title='Frequency'),
+            tooltip=['choice_text', 'count()']
+        ).properties(
+            title=f'Question: {question}'
+        ).interactive()
 
-        # Display bar chart in Streamlit
-        st.pyplot(fig)
-        
+        # Display the chart in Streamlit
+        st.altair_chart(chart, use_container_width=True)
+
         # Display count table
         st.table(question_data['choice_text'].value_counts().sort_index())
 
 def plot_comparison_data(data, question, game_days):
-    fig, axs = plt.subplots(1, len(game_days), figsize=(15, 5), sharey=True)
-
-    if len(game_days) == 1:
-        axs = [axs]  # Make sure axs is iterable if there's only one game day selected
-
-    for ax, game_day in zip(axs, game_days):
+    charts = []
+    for game_day in game_days:
         game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
         proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
-        proportions.plot(kind='bar', ax=ax)
-        ax.set_title(f'Game Day: {game_day}')
-        ax.set_xlabel('Choices')
-        ax.set_ylabel('Percentage')
 
-        # Format y-axis as percentage with one decimal
-        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.1f}%'))
+        # Create a bar chart using Altair
+        chart = alt.Chart(game_day_data).mark_bar().encode(
+            x=alt.X('choice_text', type='nominal', title='Choices'),
+            y=alt.Y('percentage', axis=alt.Axis(format='%', title='Percentage')),
+            tooltip=['choice_text', alt.Tooltip('percentage:Q', format='.1f')],
+        ).transform_calculate(
+            percentage='datum.count_*100'
+        ).properties(
+            title=f'Game Day: {game_day}'
+        ).interactive()
 
-    # Adjust layout
-    plt.tight_layout()
+        charts.append(chart)
 
-    # Display bar charts side by side in Streamlit
-    st.pyplot(fig)
-    
+    # Display charts side by side in Streamlit
+    st.altair_chart(alt.hconcat(*charts), use_container_width=True)
+
     # Display percentage tables side by side
     cols = st.columns(len(game_days))
     for col, game_day in zip(cols, game_days):
         with col:
-            
             game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
             percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
             percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
             st.table(percentages_table)
+
 
 def plot_average_ratings(data, selected_rating_questions):
     for question in selected_rating_questions:
         question_data = data[data['question'] == question]
 
         # Calculate average rating for each game day
-        average_ratings = question_data.groupby('game_day')['choice_text'].mean()
+        average_ratings = question_data.groupby('game_day')['choice_text'].mean().reset_index()
 
-        # Plot time-series bar plot
-        plt.figure(figsize=(10, 5))
-        average_ratings.plot(kind='bar')
-        plt.title(f'Average Rating Over Time for "{question}"')
-        plt.xlabel('Game Day')
-        plt.ylabel('Average Rating')
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
+        # Create a bar chart using Altair
+        chart = alt.Chart(average_ratings).mark_bar().encode(
+            x=alt.X('game_day:T', title='Game Day'),
+            y=alt.Y('choice_text:Q', title='Average Rating'),
+            tooltip=['game_day:T', 'choice_text:Q']
+        ).properties(
+            title=f'Average Rating Over Time for "{question}"'
+        ).interactive()
 
-        # Display bar plot in Streamlit
-        st.pyplot(plt)
+        # Display the chart in Streamlit
+        st.altair_chart(chart, use_container_width=True)
 
         # Display average ratings table
-        st.table(average_ratings.reset_index().rename(columns={'game_day': 'Game Day', 'choice_text': 'Average Rating'}))
+        st.table(average_ratings.rename(columns={'game_day': 'Game Day', 'choice_text': 'Average Rating'}))
+
 
 
 if __name__ == "__main__":
