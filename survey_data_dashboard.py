@@ -160,8 +160,6 @@ def plot_comparison_data(data, question, game_days):
             'percentage': proportions.values
         })
 
-        st.write(proportions_df)
-        # Create a bar chart using Altair
         chart = alt.Chart(proportions_df).mark_bar(size=30).encode(
             x=alt.X('choice_text', type='nominal', title='Choices'),
             y=alt.Y('percentage:Q', axis=alt.Axis(format='%'), title='Percentage'),
@@ -173,12 +171,11 @@ def plot_comparison_data(data, question, game_days):
     
         charts.append(chart)
 
-    if charts:  # Ensure charts list is not empty
+    if charts:  
         st.altair_chart(alt.hconcat(*charts), use_container_width=True)
     else:
         st.write("No charts to display.")
 
-    # Display percentage tables side by side
     cols = st.columns(len(game_days))
     for col, game_day in zip(cols, game_days):
         with col:
