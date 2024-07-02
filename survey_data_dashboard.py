@@ -192,6 +192,9 @@ def plot_average_ratings(data, selected_rating_questions):
         # Calculate average rating for each game day
         average_ratings = question_data.groupby('game_day')['choice_text'].mean().reset_index()
 
+        average_ratings['game_day'] = pd.to_datetime(average_ratings['game_day'], unit='ms').dt.date
+
+
         # Create a bar chart using Altair
         chart = alt.Chart(average_ratings).mark_bar().encode(
             x=alt.X('game_day:O', title='Game Day'),
