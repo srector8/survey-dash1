@@ -156,8 +156,9 @@ def plot_comparison_data(data, question, game_days):
         
         proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
 
-        choice_counts = game_day_data['choice_text'].value_counts(normalize=True) * 100
-        game_day_data = game_day_data.assign(percentage=game_day_data['choice_text'].map(choice_counts))
+        total_counts = game_day_data['choice_text'].value_counts()
+        percentages = (total_counts / total_counts.sum()) * 100
+        game_day_data['percentage'] = game_day_data['choice_text'].map(percentages)
 
         st.write(game_day_data)
 
