@@ -190,7 +190,7 @@ def plot_average_ratings(data, selected_rating_questions):
         question_data = data[data['question'] == question]
 
         average_ratings = question_data.groupby('game_day')['choice_text'].mean().reset_index()
-
+        
         # Create a bar chart using Altair
         chart = alt.Chart(average_ratings).mark_bar().encode(
             x=alt.X('game_day:O', title='Game Day'),
