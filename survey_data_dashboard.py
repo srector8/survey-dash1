@@ -166,11 +166,15 @@ def plot_comparison_data(data, question, game_days):
             title=f'Game Day: {game_day}'
         )
         
-        print(chart)
 
         
         charts.append(chart)
-    print(charts)
+
+     if charts:  # Ensure charts list is not empty
+        # Display charts side by side using Altair's hconcat
+        st.altair_chart(alt.hconcat(*charts), use_container_width=True)
+    else:
+        st.write("No charts to display.")
 
     # Display charts side by side using Altair's hconcat
     st.altair_chart(alt.hconcat(*charts), use_container_width=True)
