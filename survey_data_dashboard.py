@@ -168,16 +168,11 @@ def plot_comparison_data(data, question, game_days):
         
 
         
+
+        st.altair_chart(chart, use_container_width=True)
         charts.append(chart)
 
-    if charts:  # Ensure charts list is not empty
-        # Display charts side by side using Altair's hconcat
-        st.altair_chart(alt.hconcat(*charts), use_container_width=True)
-    else:
-        st.write("No charts to display.")
 
-    # Display charts side by side using Altair's hconcat
-    st.altair_chart(alt.hconcat(*charts), use_container_width=True)
 
     # Display percentage tables side by side
     cols = st.columns(len(game_days))
