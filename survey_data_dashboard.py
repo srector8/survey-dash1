@@ -189,16 +189,23 @@ def plot_average_ratings(data, selected_rating_questions):
     for question in selected_rating_questions:
         question_data = data[data['question'] == question]
 
-        # Calculate average rating for each game day
+        label_mapping = {
+            '2024-05-14': '5/14 v.s. Fever',
+            '2024-05-17': '5/17 v.s. Mystics',
+            '2024-05-28': '5/28 v.s. Mercury',
+            '2024-05-31': '5/31 v.s. Wings',
+            '2024-06-04': '6/4 v.s. Mystics',
+            '2024-06-10': '6/10 v.s. Fever'
+            
+        }
+        
         average_ratings = question_data.groupby('game_day')['choice_text'].mean().reset_index()
-
-        st.write(average_ratings)
 
         # Create a bar chart using Altair
         chart = alt.Chart(average_ratings).mark_bar().encode(
             x=alt.X('game_day:O', title='Game Day'),
             y=alt.Y('choice_text:Q', title='Average Rating'),
-            tooltip=['game_day:T', 'choice_text:Q']
+            tooltip=['game_day', 'choice_text']
         ).properties(
             title=f'Average Rating Over Time for "{question}"',
         ).interactive()
