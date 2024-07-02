@@ -87,63 +87,50 @@ def main():
             st.header("Cumulative Responses by Question")
             st.write("Select multiple questions and game days to see the distribution of responses.")
 
-            # Create a multiselect for selecting game days
-            game_days = st.multiselect("Select Game Days", sorted(data['game_day'].unique()))
+            game_days_select = st.multiselect("Select Game Days", sorted(data['game_day'].unique()))
+            questions_select = st.multiselect("Select Questions", sorted(data['question'].unique()))
 
-            # Filter the data based on the selected game days
-            filtered_data = data[data['game_day'].isin(game_days)]
-
-            # Create a multiselect for selecting questions based on the filtered data
-            questions = st.multiselect("Select Questions", sorted(filtered_data['question'].unique()))
-
-            # Plot graphs and count tables based on selected game days and questions
-            plot_data(filtered_data, questions)
+            if game_days_select and questions_select:
+                plot_data_altair(data, questions_select, game_days_select)
 
         with tab2:
             st.header("Single Question Comparison by Date")
             st.write("Select a single question and multiple game days for comparison.")
-            
-            # Create a selectbox for selecting a question
-            question = st.selectbox("Select Question", sorted(data['question'].unique()))
 
-            # Create a multiselect for selecting game days
-            comparison_game_days = st.multiselect("Select Game Days for Comparison", sorted(data['game_day'].unique()))
+            question_select = st.selectbox("Select Question", sorted(data['question'].unique()))
+            comparison_game_days_select = st.multiselect("Select Game Days for Comparison", sorted(data['game_day'].unique()))
 
-            # Plot graphs side by side for comparison
-            if comparison_game_days:
-                plot_comparison_data(data, question, comparison_game_days)
-            else:
-                st.warning("Please select at least one game day for comparison.")
+            if question_select and comparison_game_days_select:
+                plot_comparison_data_altair(data, question_select, comparison_game_days_select)
 
         with tab3:
             st.header("Average Ratings by Date")
             st.write("Select rating questions to see the average ratings over time.")
-            
+
             if rating_questions:
                 selected_rating_questions = st.multiselect("Select Rating Questions", rating_questions)
                 if selected_rating_questions:
-                    plot_average_ratings(data, selected_rating_questions)
+                    plot_average_ratings_altair(data, selected_rating_questions)
                 else:
                     st.warning("Please select at least one rating question.")
             else:
                 st.warning("No rating questions found in the dataset.")
 
-def plot_data(data, questions):
+def plot_data_altair(data, questions, game_days):
     for question in questions:
         question_data = data[data['question'] == question]
 
-        # Generate bar chart using Matplotlib
-        fig, ax = plt.subplots()
-        question_data.groupby('choice_text').size().sort_index().plot(kind='bar', ax=ax)
-        plt.title(f'Question: {question}')
-        plt.xlabel('Choices')
-        plt.ylabel('Frequency')
+        # Create an Altair bar chart
+        chart = alt.Chart(question_data).mark_bar().encode(
+            x=alt.X('choice_text:N', title='Choices'),
+            y=alt.Y('count():Q', title='Frequency'),
+            tooltip=['choice_text', 'count()']
+        ).properties(
+            title=f'Question: {question}'
+        ).interactive()
 
-        # Display bar chart in Streamlit
-        st.pyplot(fig)
-        
-        # Display count table
-        st.table(question_data['choice_text'].value_counts().sort_index())
+        # Display the chart using Streamlit
+        st.altair_chart(chart, use_container_width=True)
 
 def plot_comparison_data(data, question, game_days):
     fig, axs = plt.subplots(1, len(game_days), figsize=(15, 5), sharey=True)
