@@ -160,6 +160,7 @@ def plot_comparison_data(data, question, game_days):
             'percentage': proportions.values
         })
 
+        st.write(proportions_df)
         # Create a bar chart using Altair
         chart = alt.Chart(proportions_df).mark_bar(size=30).encode(
             x=alt.X('choice_text', type='nominal', title='Choices'),
