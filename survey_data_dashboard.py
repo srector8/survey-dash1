@@ -154,15 +154,20 @@ def plot_comparison_data(data, question, game_days):
     for game_day in game_days:
         game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
         proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100
-        st.write(proportions)
+        
+        proportions_df = pd.DataFrame({
+            'choice_text': proportions.index,
+            'percentage': proportions.values
+        })
 
         # Create a bar chart using Altair
-        chart = alt.Chart(proportions).mark_bar().encode(
+        chart = alt.Chart(proportions_df).mark_bar(size=30).encode(
             x=alt.X('choice_text', type='nominal', title='Choices'),
-            y=alt.Y('proportion', title='Percentage'),
+            y=alt.Y('percentage:Q', axis=alt.Axis(format='%'), title='Percentage'),
             tooltip=['choice_text', alt.Tooltip('percentage:Q', format='.1f')],
         ).properties(
-            title=f'Game Day: {game_day}'
+            title=f'Game Day: {game_day}',
+            width=bar_width  # Set the width of the chart
         )
     
         charts.append(chart)
