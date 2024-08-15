@@ -117,7 +117,7 @@ def main():
             st.write("Select a single question and multiple game days for comparison.")
             
             # Create a selectbox for selecting a question
-            question = st.selectbox("Select Question", sorted(data['question'].unique()))
+            question = st.selectbox("Select Question", sorted(data['QUESTION'].unique()))
 
             # Create a multiselect for selecting game days
             comparison_game_days = st.multiselect("Select Game Days for Comparison", sorted(data['game_day'].unique()))
