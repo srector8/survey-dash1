@@ -12,12 +12,12 @@ import altair as alt
 
 def preprocess_data(data):
     try:
-        # Check if 'choice_text' column values can be converted to float
+        # Check if 'CHOICE_TEXT' column values can be converted to float
         data['CHOICE_TEXT'] = data['CHOICE_TEXT'].apply(lambda x: float(x) if isinstance(x, (int, float)) or x.replace('.', '', 1).isdigit() else x)
     except ValueError:
         pass
 
-    # Find questions that have numeric values in the 'choice_text' column
+    # Find questions that have numeric values in the 'CHOICE_TEXT' column
     numeric_questions = data.groupby('QUESTION')['CHOICE_TEXT'].apply(lambda x: x.apply(lambda y: isinstance(y, (int, float))).any())
 
     rating_questions = numeric_questions[numeric_questions].index.tolist()
@@ -147,7 +147,7 @@ def plot_data(data, questions):
         st.altair_chart(chart, use_container_width=True)
 
         # Display count table
-        st.table(question_data['choice_text'].value_counts().sort_index())
+        st.table(question_data['CHOICE_TEXT'].value_counts().sort_index())
 
 def plot_comparison_data(data, question, game_days):
     charts = []
@@ -156,7 +156,7 @@ def plot_comparison_data(data, question, game_days):
         proportions = game_day_data['CHOICE_TEXT'].value_counts(normalize=True).sort_index()
         
         proportions_df = pd.DataFrame({
-            'choice_text': proportions.index,
+            'CHOICE_TEXT': proportions.index,
             'percentage': proportions.values
         })
 
