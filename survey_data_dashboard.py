@@ -94,7 +94,7 @@ def main():
             filtered_data = data[data['game_day'].isin(game_days)]
 
             # Create a multiselect for selecting questions based on the filtered data
-            questions = st.multiselect("Select Questions", sorted(filtered_data['question'].unique()))
+            questions = st.multiselect("Select Questions", sorted(filtered_data['QUESTION'].unique()))
 
             # Plot graphs and count tables based on selected game days and questions
             plot_data(filtered_data, questions)
