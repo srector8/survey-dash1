@@ -13,12 +13,12 @@ import altair as alt
 def preprocess_data(data):
     try:
         # Check if 'choice_text' column values can be converted to float
-        data['choice_text'] = data['choice_text'].apply(lambda x: float(x) if isinstance(x, (int, float)) or x.replace('.', '', 1).isdigit() else x)
+        data['CHOICE_TEXT'] = data['CHOICE_TEXT'].apply(lambda x: float(x) if isinstance(x, (int, float)) or x.replace('.', '', 1).isdigit() else x)
     except ValueError:
         pass
 
     # Find questions that have numeric values in the 'choice_text' column
-    numeric_questions = data.groupby('question')['choice_text'].apply(lambda x: x.apply(lambda y: isinstance(y, (int, float))).any())
+    numeric_questions = data.groupby('QUESTION')['CHOICE_TEXT'].apply(lambda x: x.apply(lambda y: isinstance(y, (int, float))).any())
 
     rating_questions = numeric_questions[numeric_questions].index.tolist()
 
@@ -32,13 +32,13 @@ def main():
     st.title("Survey Data Dashboard")
 
     # File upload widget
-    file_path = "Feedback-Responses-2024-06-12.csv"
+    file_path = "Feedback_Responses_0815.csv"
 
     if file_path is not None:
         # Read the uploaded CSV file
         data = pd.read_csv(file_path)
 
-        data['date'] = pd.to_datetime(data['timestamp'], format='%m/%d/%Y %H:%M').dt.date
+        data['date'] = pd.to_datetime(data['RESPONSE_TIMESTAMP'], format='%m/%d/%Y %H:%M').dt.date
 
         # Preprocess the data
         data, rating_questions = preprocess_data(data)
@@ -132,13 +132,13 @@ def main():
 
 def plot_data(data, questions):
     for question in questions:
-        question_data = data[data['question'] == question]
+        question_data = data[data['QUESTION'] == question]
 
         # Create a bar chart using Altair
         chart = alt.Chart(question_data).mark_bar().encode(
-            x=alt.X('choice_text', type='nominal', title='Choices'),
+            x=alt.X('CHOICE_TEXT', type='nominal', title='Choices'),
             y=alt.Y('count()', title='Frequency'),
-            tooltip=['choice_text', 'count()']
+            tooltip=['CHOICE_TEXT', 'count()']
         ).properties(
             title=f'Question: {question}'
         ).interactive()
@@ -152,8 +152,8 @@ def plot_data(data, questions):
 def plot_comparison_data(data, question, game_days):
     charts = []
     for game_day in game_days:
-        game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-        proportions = game_day_data['choice_text'].value_counts(normalize=True).sort_index()
+        game_day_data = data[(data['game_day'] == game_day) & (data['QUESTION'] == question)]
+        proportions = game_day_data['CHOICE_TEXT'].value_counts(normalize=True).sort_index()
         
         proportions_df = pd.DataFrame({
             'choice_text': proportions.index,
@@ -161,9 +161,9 @@ def plot_comparison_data(data, question, game_days):
         })
 
         chart = alt.Chart(proportions_df).mark_bar(size=30).encode(
-            x=alt.X('choice_text', type='nominal', title='Choices'),
+            x=alt.X('CHOICE_TEXT', type='nominal', title='Choices'),
             y=alt.Y('percentage:Q', axis=alt.Axis(format='%'), title='Percentage'),
-            tooltip=['choice_text', alt.Tooltip('percentage:Q', format='.1f')],
+            tooltip=['CHOICE_TEXT', alt.Tooltip('percentage:Q', format='.1f')],
         ).properties(
             title=f'Game Day: {game_day}',
             width=alt.Step(50),
@@ -179,23 +179,23 @@ def plot_comparison_data(data, question, game_days):
     cols = st.columns(len(game_days))
     for col, game_day in zip(cols, game_days):
         with col:
-            game_day_data = data[(data['game_day'] == game_day) & (data['question'] == question)]
-            percentages_table = (game_day_data['choice_text'].value_counts(normalize=True).sort_index() * 100).round(1)
+            game_day_data = data[(data['game_day'] == game_day) & (data['QUESTION'] == question)]
+            percentages_table = (game_day_data['CHOICE_TEXT'].value_counts(normalize=True).sort_index() * 100).round(1)
             percentages_table = percentages_table.apply(lambda x: f'{x:.1f}%')
             st.table(percentages_table)
 
 
 def plot_average_ratings(data, selected_rating_questions):
     for question in selected_rating_questions:
-        question_data = data[data['question'] == question]
+        question_data = data[data['QUESTION'] == question]
 
-        average_ratings = question_data.groupby('game_day')['choice_text'].mean().reset_index()
+        average_ratings = question_data.groupby('game_day')['CHOICE_TEXT'].mean().reset_index()
         
         # Create a bar chart using Altair
         chart = alt.Chart(average_ratings).mark_bar().encode(
             x=alt.X('game_day:O', title='Game Day'),
-            y=alt.Y('choice_text:Q', title='Average Rating'),
-            tooltip=['game_day', 'choice_text']
+            y=alt.Y('CHOICE_TEXT:Q', title='Average Rating'),
+            tooltip=['game_day', 'CHOICE_TEXT']
         ).properties(
             title=f'Average Rating Over Time for "{question}"',
         ).interactive()
@@ -204,7 +204,7 @@ def plot_average_ratings(data, selected_rating_questions):
         st.altair_chart(chart, use_container_width=True)
 
         # Display average ratings table
-        st.table(average_ratings.rename(columns={'game_day': 'Game Day', 'choice_text': 'Average Rating'}))
+        st.table(average_ratings.rename(columns={'game_day': 'Game Day', 'CHOICE_TEXT': 'Average Rating'}))
 
 
 
